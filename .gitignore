@@ -5,6 +5,7 @@ Django_Futsal_Stat_Tracker.code-workspace
 __pycache__/
 /py_client
 old.git
+old
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,django,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,django,python
