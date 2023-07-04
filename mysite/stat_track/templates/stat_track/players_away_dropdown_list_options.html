@@ -1,0 +1,6 @@
+{% for player in players_away %}
+<div class="input-group-text bg-dark border-0 w-100">
+    <input class= "form-control bg-dark text-white w-25" type="number" value="0" name="{{ player.id }}" id="{{ player.id }}" min="0" step="1" aria-label="Username" aria-describedby="basic-addon1">
+    <span class="form-control bg-dark text-white w-75" id="basic-addon1">{{ player.first_name }} {{ player.last_name }}</span>
+</div>
+{% endfor %}

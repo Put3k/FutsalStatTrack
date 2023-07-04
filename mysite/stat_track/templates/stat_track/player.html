@@ -1,0 +1,20 @@
+{% extends "./base.html" %}
+
+{% block title %}Player Profile{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+    <div class="card text-bg-dark mb-3 container text-center" style="max-width: 18rem;">
+        <div class="card-header"><h3>{{ player.first_name }} {{ player.last_name }}<h3></div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush" data-bs-theme="dark">
+            <li class="list-group-item">Goals: {{ player.get_player_goals }}</li>
+            <li class="list-group-item">Matches: {{ player.get_player_matches_played }}</li>
+            <li class="list-group-item">Wins: {{ player.get_player_wins }}</li>
+            <li class="list-group-item">Loses: {{ player.get_player_loses }}</li>
+            <li class="list-group-item">Draws: {{ player.get_player_draws }}</li>
+            <li class="list-group-item">Points: {{ player.get_total_points }}</li>
+          </ul>
+        </div>
+      </div>
+
+{% endblock %}

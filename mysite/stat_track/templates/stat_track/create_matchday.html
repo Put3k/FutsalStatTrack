@@ -1,0 +1,168 @@
+{% extends "./base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Create Matchday{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'stat_track/js/create_matchday.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<style>
+    .blue {
+        color: blue;
+    }
+    .orange {
+        color: orange;
+    }
+    .colors {
+        color: green;
+    }
+    .color-box {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .color-box.blue {
+        background-color: blue;
+    }
+    .color-box.orange {
+        background-color: orange;
+    }
+    .color-box.colors {
+        background-color: green;
+    }
+</style>
+
+    <div class="container text-center">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="card text-bg-dark mb-3 container text-center col" style="max-width: 19rem">
+                    <h2>Create Matchday</h2>
+                </div>
+            </div>
+
+            {% comment %} Available Player select list {% endcomment %}
+            <div class="row">
+                <div class="card text-bg-dark mb-3 container text-center col" style="max-width: 18rem">
+                    <div class="card-header">
+                        <h5>Available Players</h5>
+                    </div>
+                    <div class="card-header">
+                        <input  type="text" id="player-name-input" placeholder="Player name..." class="form-control form-control-lg">
+                    </div>
+                    <div class="card-body">
+                        <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="available_players" name="available_players" size="10" multiple>
+                        {% for player in list_of_players %}
+                            <option value="{{ player.id }}" data-team="{{ player.team }}">{{ player }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" data-team="blue" class="btn btn-primary" id="add_to_blue">Blue</button>
+                        <button type="button" data-team="orange" class="btn btn-warning" id="add_to_orange">Orange</button>
+                        <button type="button" data-team="colors" class="btn btn-secondary" id="add_to_colors">Colors</button>
+                    </div>
+                </div>
+                
+                
+                {% comment %} BLUE TEAM FORM {% endcomment %}
+                <div class="card text-bg-dark mb-3 container text-center col" style="max-width: 18rem">
+                    <div class="card-header">
+                        <h5>Blue Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <select id="team_blue" name="team_blue" class="form-select form-select-lg mb-3 form-control" aria-label=".form-select-lg example" size="10" multiple>
+                        {% for player in team_blue %}
+                            <option value="{{ player.id }}" data-team="{{ player.team }}">{{ player.name }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="card-footer">
+                        Count: <span id="blue_count">{{ team_blue|length }}</span>
+                        <button type="button" class="btn btn-secondary" id="remove_player_blue">Remove player</button>
+                    </div>
+                </div>
+
+                {% comment %} ORANGE TEAM FORM {% endcomment %}
+                <div class="card text-bg-dark mb-3 container text-center col" style="max-width: 18rem">
+                    <div class="card-header">
+                        <h5>Orange Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <select id="team_orange" name="team_orange" class="form-select form-select-lg mb-3 form-control" aria-label=".form-select-lg example" size="10" multiple>
+                        {% for player in team_orange %}
+                            <option value="{{ player.id }}" data-team="{{ player.team }}">{{ player.name }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="card-footer">
+                        Count: <span id="orange_count">{{ team_orange|length }}</span>
+                        <button type="button" class="btn btn-secondary" id="remove_player_orange">Remove player</button>
+                    </div>
+                </div>
+
+                {% comment %} COLORS TEAM FORM {% endcomment %}
+                <div class="card text-bg-dark mb-3 container text-center col" style="max-width: 18rem">
+                    <div class="card-header">
+                        <h5>Colors Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <select id="team_colors" name="team_colors" class="form-select form-select-lg mb-3 form-control" aria-label=".form-select-lg example" size="10" multiple>
+                        {% for player in team_colors %}
+                            <option value="{{ player.id }}" data-team="{{ player.team }}">{{ player.name }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="card-footer">
+                        Count: <span id="colors_count">{{ team_colors|length }}</span>
+                        <button type="button" class="btn btn-secondary" id="remove_player_colors">Remove player</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col card text-bg-dark mb-3 container text-center" style="max-width: 18rem">
+                    <div class="card-header">
+                        <h5>Date of matchday</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <form method="post">
+                            {{ form.date }}
+                        </form>
+                    </div>
+                </div>   
+
+                {% comment %} Save matchday Button {% endcomment %}
+                <div class="col card text-bg-dark mb-3 container text-center" style="max-width: 18rem">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <button type="submit" class="btn btn-secondary" name="saveMatchday" value="saveMatchday"><h2>Save Matchday</h2></button>
+                    </div>
+                </div>
+                <div class="col card text-bg-dark mb-3 container text-center" style="max-width: 18rem"></div>
+            </div>
+          </form>
+
+          <div class="col card text-bg-dark mb-3 container text-center" style="max-width: 18rem">
+            <div class = "card-header">
+                <h5>Add new Player</h5>
+            </div>
+            <div class="card-body">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ player_form }}
+                    <button type="submit" class="btn btn-secondary" name="addPlayer" value="addPlayer">Add Player</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <h2>You Have no Permission to Create Matchday.</h2>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "./base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Edit {{matchday}}{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'stat_track/js/edit_matchday.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+{% if success %}
+    <div class='alert alert-success'>
+        {{ success }}
+    </div>
+{% elif errors %}
+        {% for error in errors %}
+        <div class='alert alert-danger'>
+            {{ error }}
+        </div>
+        {% endfor %}
+{% endif %}
+
+
+<div class='container-fluid text-center'>
+    <div class='row'>
+        <div class='col'>
+            <div class='card text-bg-dark'><h2>{{ matchday }}</h2></div>
+        </div>
+    </div>
+    <div class='row mt-3'>
+
+        <div class='col-2'>
+            <div class='card text-bg-dark'>
+                <div class='card-header'>
+                    <h3>Matches</h3>
+                </div>
+                <div class='card-body'>
+                    <div class='list-group'>
+                    {% for match in match_list %}
+                        <div class="list-group-item list-group-item-action bg-dark text-white d-flex justify-content-between align-items-center" aria-current="true">
+                            <form action="{% url 'delete_match' match.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm me-2" type="submit">&times;</button>
+                            </form>
+                            <div class='ms-2 me-auto'>
+                                {{ match.print_match }}
+                                {% if match.winner_team == "blue" %}
+                                    <span class="badge rounded-pill" style="background-color:#0075ff"> </span>
+                                {% elif match.winner_team == "orange" %}
+                                    <span class="badge rounded-pill" style="background-color:#ff8a00"> </span>
+                                {% elif match.winner_team == "colors" %}
+                                    <span class="badge rounded-pill" style="background-color:#75ff00"> </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class='col-8'>
+            <form method="POST" id="matchCreator" data-players-url="{% url 'ajax_load_players' %}">
+                <div class='card text-bg-dark'>
+                    <div class='card-header'>
+                        <h3>Create Match</h3>
+                    </div>
+                    <div class='card-header'>
+                        <div class='row'>
+                            <div class='col'>
+                                <div class='input-group-text bg-dark border-0 w-100'>
+                                    <select name="team_home" class="form-control bg-dark text-white w-75" required="" id="id_team_home">
+                                        <option value="" selected="">---------</option>                                        
+                                        <option value="blue">Blue</option>                                         
+                                        <option value="orange">Orange</option>                                         
+                                        <option value="colors">Colors</option>                               
+                                    </select>
+                                    <input type="number" name="home_goals" value="0" class="form-control bg-dark text-white w-25" required="" id="id_home_goals" readonly>                    
+                                </div>
+                            </div>
+                            <div class='col'>
+                                <div class='input-group-text bg-dark border-0 w-100'>
+                                    <input type="number" name="away_goals" value="0" class="form-control bg-dark text-white w-25" required="" id="id_away_goals" readonly>
+                                    <select name="team_away" class="form-control bg-dark text-white w-75" required="" id="id_team_away">
+                                        <option value="" selected="">---------</option>                                        
+                                        <option value="blue">Blue</option>                                         
+                                        <option value="orange">Orange</option>                                         
+                                        <option value="colors">Colors</option>                               
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='card-body'>
+                        <div class='container-fluid text-center'>
+                            {% csrf_token %}
+                            <div class='row'>
+                                <div class='col'>
+                                    <section id='team-home'>
+                                        <div id="player-fields-home"></div>
+                                    </section>
+                                </div>
+                                <div class='col'>
+                                    <section method='POST' id='team-away'>
+                                        <div id="player-fields-away"></div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='card-footer'>
+                        <button type="submit" name="addMatch" value="addMatch" class="btn btn-outline-success">Add Match</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class='col-2'>
+            <div class='card text-bg-dark'>
+                <div class='card-header'>
+                    <h3>Teams</h3>
+                </div>
+                <div class='card-body'>
+                    <div class='list-group'>
+                        {% for ticket in ticket_list %}
+                            <a href='#' class="list-group-item list-group-item-action bg-dark text-white d-flex justify-content-between align-items-center" aria-current="true">
+                                {{ ticket.player }}
+                                {% if ticket.team == "blue" %}
+                                    <span class="badge rounded-pill" style="background-color:#0075ff"> </span>
+                                {% elif ticket.team == "orange" %}
+                                    <span class="badge rounded-pill" style="background-color:#ff8a00"> </span>
+                                {% elif ticket.team == "colors" %}
+                                    <span class="badge rounded-pill" style="background-color:#75ff00"> </span>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% comment %} Matchday ID {% endcomment %}
+<div id='matchday_id' data-matchday-id='{{ matchday.id }}'></div>
+{% else %}
+<h3>You Have no Permission to Edit Matchday</h3>
+{% endif %}
+{% endblock %}

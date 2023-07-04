@@ -1,0 +1,53 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% block scripts %}
+    <script src="{% static 'stat_track/js/players_list.js' %}"></script>
+{% endblock %}
+
+<div class="card" data-bs-theme="dark">
+    <div class="table-responsive">
+        <table id="playersList"class="table table-dark table-striped" style="white-space:nowrap;">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)" scope="col" data-type="number">#</th>
+                    <th onclick="sortTable(1)" scope="col">First Name</th>
+                    <th onclick="sortTable(2)" scope="col">Last Name</th>
+                    <th onclick="sortTable(3)" scope="col" data-type="number">Goals</th>
+                    <th onclick="sortTable(4)" scope='col' data-type="number">Goals/Match</th>
+                    <th onclick="sortTable(5)" scope="col" data-type="number">Matches</th>
+                    <th onclick="sortTable(6)" scope="col" data-type="number">Matchdays</th>
+                    <th onclick="sortTable(7)" scope="col" data-type="number">Points</th>
+                    <th onclick="sortTable(8)" scope="col" data-type="number">Points/Match</th>
+                    <th onclick="sortTable(9)" scope="col" data-type="number">Wins</th>
+                    <th onclick="sortTable(10)" scope="col" data-type="number">Loses</th>
+                    <th onclick="sortTable(11)" scope="col" data-type="number">Draws</th>
+                    <th onclick="sortTable(12)" scope="col" data-type="number">Win Ratio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</th>
+                    <td><a href='player/{{ player.id }}'>{{ player.first_name }}</a></td>
+                    <td><a href='player/{{ player.id }}'>{{ player.last_name }}</a></td>
+                    <td>{{ player.get_player_goals }}</td>
+                    <td>{{ player.get_player_goals_per_match }}</td>
+                    <td>{{ player.get_player_matches_played }}</td>
+                    <td>{{ player.get_player_matchdays }}</td>
+                    <td>{{ player.get_total_points }}</td>
+                    <td>{{ player.get_points_per_match }}</td>
+                    <td>{{ player.get_player_wins }}</td>
+                    <td>{{ player.get_player_loses }}</td>
+                    <td>{{ player.get_player_draws }}</td>
+                    <td>{{ player.get_player_win_ratio }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>      
+    </div>
+</div>
+
+{% endblock %}
