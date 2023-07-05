@@ -2,6 +2,7 @@ import datetime
 import json
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import formset_factory
@@ -10,13 +11,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from rest_framework import generics
 
+from .decorators import is_league_member_or_owner
 from .forms import MatchCreator, MatchDayForm, PlayerForm, StatForm
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 from .serializers import PlayerSerializer
 
 
 def home(request):
-
     user_owned_leagues = []
     player_leagues = []
     player = None
@@ -28,11 +29,12 @@ def home(request):
         user_owned_leagues = League.objects.filter(owner=user)
         player_leagues = player.leagues.all()
 
-    
-
-    #PLEASE login
-
-    #if logged in: if len leagues == 1 otworzyć tą ligę, inaczej wybierz która ligą chcesz zarządzać
+    if len(user_owned_leagues) == 1 and len(player_leagues) == 1:
+        owned_league = user_owned_leagues[0]
+        player_league = player_leagues[0]
+        
+        if owned_league==player_league:
+            return redirect(f"/league/{owned_league.id}/")
 
     context = {
         "user_owned_leagues": user_owned_leagues,
@@ -41,23 +43,30 @@ def home(request):
 
     return render(request, "stat_track/home.html", context)
 
+@login_required
+@is_league_member_or_owner
+def league_home(request, league_id):
+    league = get_object_or_404(League, pk=league_id)
+    # if not is_league_member(request.user, league):
+    #     return redirect("home")
 
-def league_home(request):
     latest_match_day_list = MatchDay.objects.order_by("-date")[:5]
     players_list = Player.objects.all()
     players_list = sorted(players_list, key=lambda x: x.get_player_goals, reverse=True)[:5]
 
     context = {"latest_match_day_list": latest_match_day_list, "players_list": players_list}
-    return render(request, "stat_track/home.html", context)
+    return render(request, "stat_track/league_home.html", context)
 
-
+# NOT IN USE
 def moderator_panel(request):
     return HttpResponse("Moderator Panel")
 
+@login_required
 def player_stats(request, player_id):
     player = get_object_or_404(Player, pk=player_id)
     return render(request, "stat_track/player.html", {"player": player})
 
+@login_required
 def players_list(request):
     players_list = Player.objects.all().order_by('last_name')
     
@@ -67,6 +76,7 @@ def players_list(request):
 
     return render(request, "stat_track/players_list.html", context)
 
+@login_required
 def matchday(request, matchday_id):
     matchday = get_object_or_404(MatchDay, pk=matchday_id)
     matches_in_matchday_list = Match.objects.filter(matchday=matchday_id)
@@ -117,6 +127,7 @@ def matchday(request, matchday_id):
 
     return render(request, "stat_track/matchday.html", context)
 
+@login_required
 @transaction.atomic
 def match_creator_matchday(request):
 
@@ -176,12 +187,11 @@ def match_creator_matchday(request):
     return render(request, "stat_track/create_matchday.html", context)
 
 
+@login_required
 def edit_matchday(request, matchday_id):
 
     #get matchday
     matchday = get_object_or_404(MatchDay, pk=matchday_id)
-    errors = []
-    success = None
 
     if "addMatch" in request.POST:
         
@@ -219,7 +229,8 @@ def edit_matchday(request, matchday_id):
 
         except ValidationError as e:
             for error_message in e:
-                errors.append(error_message[1][0])
+                error_str = error_message[1][0]
+                messages.error(request, error_str)
 
 
     #get match list for this matchday
@@ -235,12 +246,11 @@ def edit_matchday(request, matchday_id):
         "matchday":matchday,
         "ticket_list":ticket_list,
         "form":form,
-        'errors': errors,
-        'success': success
         }
 
     return render(request, "stat_track/edit_matchday.html", context)
 
+@login_required
 def delete_match(request, match_id):
     match = get_object_or_404(Match, id=match_id)
     matchday_id = match.matchday.id

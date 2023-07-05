@@ -9,6 +9,7 @@ urlpatterns = [
     # path("league/<int:league_id>/", views.league_view, name="league_name"),
     path('player/<int:player_id>/', views.player_stats, name="player_stats"),
     path('players_list/', views.players_list, name="players_list" ),
+    path('league/<int:league_id>/', views.league_home, name="league_home"),
     path('matchday/<int:matchday_id>/', views.matchday, name="matchday"),
     path('create_matchday/', views.match_creator_matchday, name="create_matchday"),
     path('matchday/<int:matchday_id>/edit', views.edit_matchday, name="edit_matchday"),

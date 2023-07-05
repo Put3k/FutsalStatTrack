@@ -19,6 +19,7 @@ class League(models.Model):
     name = models.CharField(max_length=64)
     start_date = models.DateField(default=timezone.now)
 
+
     def __str__(self):
         return self.name
 
@@ -31,7 +32,7 @@ class Player(models.Model):
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    leagues = models.ManyToManyField(League, null=True, blank=True)
+    leagues = models.ManyToManyField(League, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
