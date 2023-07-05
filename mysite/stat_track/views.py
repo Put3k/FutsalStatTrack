@@ -1,27 +1,45 @@
+import datetime
 import json
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.forms import formset_factory
-from django.urls import reverse
-from .models import MatchDay, MatchDayTicket, Match, Player, Stat
-from .forms import MatchDayForm, MatchCreator, StatForm, PlayerForm
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.forms import formset_factory
 from django.http import JsonResponse
-
-import datetime
-
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from rest_framework import generics
+
+from .forms import MatchCreator, MatchDayForm, PlayerForm, StatForm
+from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 from .serializers import PlayerSerializer
 
 
 def home(request):
+
+    user_owned_leagues = []
+    player_leagues = []
+    player = None
+
     if request.user.is_authenticated:
+        user = request.user
+        player = Player.objects.get(user=user)
+
+        user_owned_leagues = League.objects.filter(owner=user)
+        player_leagues = player.leagues.all()
+
+    
+
     #PLEASE login
 
     #if logged in: if len leagues == 1 otworzyć tą ligę, inaczej wybierz która ligą chcesz zarządzać
-        pass
+
+    context = {
+        "user_owned_leagues": user_owned_leagues,
+        "player_leagues": player_leagues,
+    }
+
+    return render(request, "stat_track/home.html", context)
 
 
 def league_home(request):
