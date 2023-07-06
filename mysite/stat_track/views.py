@@ -12,7 +12,7 @@ from django.urls import reverse
 from rest_framework import generics
 
 from .decorators import is_league_member_or_owner
-from .forms import MatchCreator, MatchDayForm, PlayerForm, StatForm
+from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm, StatForm
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 from .serializers import PlayerSerializer
 
@@ -47,15 +47,43 @@ def home(request):
 @is_league_member_or_owner
 def league_home(request, league_id):
     league = get_object_or_404(League, pk=league_id)
-    # if not is_league_member(request.user, league):
-    #     return redirect("home")
 
-    latest_match_day_list = MatchDay.objects.order_by("-date")[:5]
+    latest_match_day_list = MatchDay.objects.filter(league=league).order_by("-date")[:5]
     players_list = Player.objects.all()
     players_list = sorted(players_list, key=lambda x: x.get_player_goals, reverse=True)[:5]
 
-    context = {"latest_match_day_list": latest_match_day_list, "players_list": players_list}
+    context = {
+        "latest_match_day_list": latest_match_day_list,
+        "players_list": players_list,
+        "league": league
+        }
     return render(request, "stat_track/league_home.html", context)
+
+@login_required
+def create_league(request):
+
+    form = LeagueForm()
+
+    if request.method == "POST":
+        form = LeagueForm(request.POST)
+        if form.is_valid():
+            league = form.save(commit=False)
+            league.owner = request.user
+            league.save()
+            league_name = league.name
+            league_id = league.id
+            messages.success(request, f"{league_name} created successfully.")
+            return redirect(f'/league/{league_id}/')
+
+    else:
+        form = LeagueForm(request.POST)
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, "stat_track/league_create.html", context)
+
 
 # NOT IN USE
 def moderator_panel(request):
@@ -185,7 +213,6 @@ def match_creator_matchday(request):
     }
 
     return render(request, "stat_track/create_matchday.html", context)
-
 
 @login_required
 def edit_matchday(request, matchday_id):

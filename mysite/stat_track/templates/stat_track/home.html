@@ -17,9 +17,9 @@
                 </div>
                 <ul class="list-group list-group-flush bg-dark text-white">
                     {% for league in user_owned_leagues %}
-                                <li href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" aria-current="true">
+                                <li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" aria-current="true">
                                     <h5>{{ league }}</h5>
-                                    <button type="button" class="btn btn-dark">Manage</button>
+                                    <a href='league/{{ league.id }}'><button type="button" class="btn btn-dark">Manage</button></a>
                                 </li>
                     {% endfor %}
                 </ul>
@@ -32,7 +32,7 @@
                     {% for league in player_leagues %}
                                 <li href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" aria-current="true">
                                     <h5>{{ league }}</h5>
-                                    <button type="button" class="btn btn-dark">View</button>
+                                    <a href='league/{{ league.id }}'><button type="submit" class="btn btn-dark">View</button></a>
                                 </li>
                     {% endfor %}
                 </ul>

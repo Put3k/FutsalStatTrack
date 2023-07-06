@@ -25,12 +25,10 @@ def login_user(request):
     else:
         return render(request, 'authenticate/login.html', {})
 
-
 def logout_user(request):
     logout(request)
     messages.success(request, ("Logged Out Successfully."))
     return redirect('home')
-
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -44,7 +42,7 @@ def register_user(request):
             password = form.cleaned_data['password1']
             user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(request, (f"You have successfully registered and logged in."))
+            messages.success(request, "You have successfully registered and logged in.")
             return redirect('home')
 
     else:

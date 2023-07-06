@@ -1,6 +1,6 @@
-from django .urls import path
-from . import views
+from django.urls import path
 
+from . import views
 
 urlpatterns = [
     #HTML Views
@@ -10,8 +10,9 @@ urlpatterns = [
     path('player/<int:player_id>/', views.player_stats, name="player_stats"),
     path('players_list/', views.players_list, name="players_list" ),
     path('league/<int:league_id>/', views.league_home, name="league_home"),
+    path('league/create/', views.create_league, name="create_league"),
     path('matchday/<int:matchday_id>/', views.matchday, name="matchday"),
-    path('create_matchday/', views.match_creator_matchday, name="create_matchday"),
+    path('matchday/create/', views.match_creator_matchday, name="create_matchday"),
     path('matchday/<int:matchday_id>/edit', views.edit_matchday, name="edit_matchday"),
     path('delete_match/<int:match_id>/', views.delete_match, name="delete_match"),
     

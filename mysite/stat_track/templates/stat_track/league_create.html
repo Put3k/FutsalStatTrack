@@ -1,0 +1,20 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block title %}Create League{% endblock %}
+
+{% block content %}
+<div class="shadow-lg p-4 mb-5 bg-dark text-white rounded">
+    <h2>Create new league</h2>
+    <form action="{% url 'create_league' %}" method=POST>
+        {% csrf_token %}
+        {% for item in form %}
+        {{ item.label }}  {{ item }}
+        {% if item.help_text %}
+            {{ item.help_text|safe }}
+        {% endif %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary mb-3">Create League</button>
+    </form>
+</div>
+{% endblock %}
