@@ -1,5 +1,6 @@
 from datetime import date, datetime, time
 
+from django import template
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -14,6 +15,8 @@ TEAM_CHOICES = (
     ("orange", "orange"),
     ("colors", "colors")
 )
+
+
 class League(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=64)
@@ -32,20 +35,37 @@ class Player(models.Model):
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    leagues = models.ManyToManyField(League, blank=True)
+    leagues = models.ManyToManyField(League)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
     @property
-    def get_player_matchdays(self):
+    def get_player_total_matchdays(self):
+        """
+        Returns number of total matchdays played by certain player.
+        """
         matchday_count = MatchDayTicket.objects.filter(player=self).count()
         return matchday_count
+
+    def get_player_matchdays_in_league(self, league):
+        """
+        Returns number of total matchdays played by certain player in certain league.
+        """
+        matchdays_id = MatchDayTicket.objects.filter(player=self).values('matchday')
+        matchday_count = MatchDay.objects.filter(pk__in=matchdays_id, league=league).count()
+
+        return matchday_count
+
 
     @property
     def get_player_matches_played(self):
         matches_played = Stat.objects.filter(player=self).count()
         return matches_played
+
+    def get_player_matches_played_in_league(self, league):
+        matches_played = Stat.objects.filter(player=self).values('matchday')
+
 
     @property
     def get_player_goals(self):
@@ -351,7 +371,9 @@ class Stat(models.Model):
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
     goals = models.IntegerField(validators=[positive_validator], default=0)
+
 
     def __str__(self):
         return f"ID: {self.id} - {self.match}  - {self.player.first_name} {self.player.last_name}"
@@ -422,6 +444,11 @@ class Stat(models.Model):
             return False
         else:
             return True
+
+    def save(self, *args, **kwargs):
+        if not self.league:
+            self.league = self.match.matchday.league
+        super(Stat, self).save(*args, **kwargs)
 
     def clean(self):
         #Player validation

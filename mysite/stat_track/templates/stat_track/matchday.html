@@ -6,15 +6,21 @@
 
 {% block content %}
 <div class="card text-bg-dark row mb-3">
-    <div class="text-center"><h2>{{ matchday }}</h2></div>
+    <a style="text-decoration: none" href="{% url 'league_home' league.id %}"><h2 class="text-white">{{ league }}</h2></a>
+    <div class="text-center" style="display: flex; justify-content: space-between ;">
+        <h4>{{ matchday }}</h4><button onclick="location.href='{% url 'matchday_delete' matchday.id %}'" class="btn btn-outline-danger mb-2">Delete Matchday</button>
+    </div>
 </div>
 <div class="row">
     <div class="card text-bg-dark col ml">
         <div class="card-header text-center" style="display: flex; justify-content: space-between ;">
                 <div></div>
                 <h3>Matches</h3>
-                {% if user.is_authenticated %}
-                <button onclick="location.href='{% url 'edit_matchday' matchday.id %}'" class="btn btn-outline-success">Edit</button>
+                {% if user == owner %}
+                <button onclick="location.href='{% url 'matchday_edit' matchday.id %}'" class="btn btn-outline-success">Edit</button>
+                
+                {% else %}
+                <div></div>
                 {% endif %}
         </div>
         <div class="table-responsive">

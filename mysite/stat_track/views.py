@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from rest_framework import generics
 
-from .decorators import is_league_member_or_owner
+from .decorators import is_league_member_or_owner, is_league_owner
 from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm, StatForm
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 from .serializers import PlayerSerializer
@@ -47,15 +47,17 @@ def home(request):
 @is_league_member_or_owner
 def league_home(request, league_id):
     league = get_object_or_404(League, pk=league_id)
+    owner = league.owner
 
-    latest_match_day_list = MatchDay.objects.filter(league=league).order_by("-date")[:5]
-    players_list = Player.objects.all()
+    latest_match_day_list = MatchDay.objects.filter(league=league).order_by("-date")[:6]
+    players_list = Player.objects.filter(leagues=league)
     players_list = sorted(players_list, key=lambda x: x.get_player_goals, reverse=True)[:5]
 
     context = {
         "latest_match_day_list": latest_match_day_list,
         "players_list": players_list,
-        "league": league
+        "league": league,
+        "owner": owner
         }
     return render(request, "stat_track/league_home.html", context)
 
@@ -90,24 +92,31 @@ def moderator_panel(request):
     return HttpResponse("Moderator Panel")
 
 @login_required
+@is_league_member_or_owner
 def player_stats(request, player_id):
     player = get_object_or_404(Player, pk=player_id)
     return render(request, "stat_track/player.html", {"player": player})
 
 @login_required
-def players_list(request):
-    players_list = Player.objects.all().order_by('last_name')
+@is_league_member_or_owner
+def players_list(request, league_id):
+    league = League.objects.get(pk=league_id)
+    players_list = Player.objects.filter(leagues=league).order_by('last_name')
     
     context = {
-        "players_list": players_list
+        "league": league,
+        "players_list": players_list,
     }
 
     return render(request, "stat_track/players_list.html", context)
 
 @login_required
+@is_league_member_or_owner
 def matchday(request, matchday_id):
-    matchday = get_object_or_404(MatchDay, pk=matchday_id)
+    matchday = MatchDay.objects.get(pk=matchday_id)
     matches_in_matchday_list = Match.objects.filter(matchday=matchday_id)
+    league = matchday.league
+    owner = league.owner
 
     #Assign players to teams
     tickets = MatchDayTicket.objects.filter(matchday=matchday)
@@ -144,6 +153,8 @@ def matchday(request, matchday_id):
     context = {
         "matches_in_matchday_list": matches_in_matchday_list,
         "matchday": matchday,
+        "league": league,
+        "owner": owner,
         "tickets": tickets,
         "team_blue": team_blue,
         "team_orange": team_orange,
@@ -156,8 +167,17 @@ def matchday(request, matchday_id):
     return render(request, "stat_track/matchday.html", context)
 
 @login_required
+@is_league_owner
+def matchday_delete(request, matchday_id):
+    matchday = get_object_or_404(MatchDay, id=matchday_id)
+    league_id = matchday.league.id
+    matchday.delete()
+    return redirect(f'league_home', league_id)
+
+@login_required
+@is_league_owner
 @transaction.atomic
-def match_creator_matchday(request):
+def match_creator_matchday(request, league_id):
 
     def create_matchday_tickets(list_of_players, matchday, team):
         """Create MatchDayTicket to assign players to teams in certain matchday."""
@@ -170,6 +190,7 @@ def match_creator_matchday(request):
     list_of_players = Player.objects.all().order_by("last_name")
     form = MatchDayForm()
     player_form = PlayerForm()
+    league = get_object_or_404(League, pk=league_id)
 
     if request.method == "POST":
         if "saveMatchday" in request.POST:
@@ -190,6 +211,7 @@ def match_creator_matchday(request):
                 modified_date = datetime.datetime(date.year, date.month, date.day, 21, 0, 0)
 
                 matchday = form.save()
+                matchday.league = league
                 matchday.date = modified_date
                 matchday.save()
 
@@ -215,6 +237,7 @@ def match_creator_matchday(request):
     return render(request, "stat_track/create_matchday.html", context)
 
 @login_required
+@is_league_owner
 def edit_matchday(request, matchday_id):
 
     #get matchday
