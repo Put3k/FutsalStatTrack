@@ -93,7 +93,8 @@ def moderator_panel(request):
 
 @login_required
 @is_league_member_or_owner
-def player_stats(request, player_id):
+def player_stats(request, player_id, league_id):
+    league = get_object_or_404(League, pk=league_id)
     player = get_object_or_404(Player, pk=player_id)
     return render(request, "stat_track/player.html", {"player": player})
 
@@ -187,18 +188,18 @@ def match_creator_matchday(request, league_id):
             ticket = MatchDayTicket(matchday=matchday, player=player, team=team)
             ticket.save()
 
-    list_of_players = Player.objects.all().order_by("last_name")
-    form = MatchDayForm()
-    player_form = PlayerForm()
     league = get_object_or_404(League, pk=league_id)
-
+    list_of_players = Player.objects.filter(leagues=league).order_by("last_name")
+    player_form = PlayerForm()
+    
     if request.method == "POST":
-        if "saveMatchday" in request.POST:
 
-            #Get players sorted by teams.
-            team_blue = request.POST.getlist("team_blue")
-            team_orange = request.POST.getlist("team_orange")
-            team_colors = request.POST.getlist("team_colors")
+        #Get players sorted by teams.
+        team_blue = request.POST.getlist("team_blue")
+        team_orange = request.POST.getlist("team_orange")
+        team_colors = request.POST.getlist("team_colors")
+
+        if "saveMatchday" in request.POST:
 
             #Save MatchDay form and access instance of it.
             form = MatchDayForm(request.POST)
@@ -227,11 +228,24 @@ def match_creator_matchday(request, league_id):
             player_form = PlayerForm(request.POST)
             if player_form.is_valid():
                 player = player_form.save()
+                player.leagues.add(league)
+
+    else:
+        team_blue = None
+        team_orange = None
+        team_colors = None
+        form = MatchDayForm()
     
+    player_form = PlayerForm()
+
     context = {
+        "league": league,
         "list_of_players": list_of_players,
         "form": form,
-        "player_form":player_form
+        "player_form": player_form,
+        "team_blue": team_blue,
+        "team_orange": team_orange,
+        "team_colors": team_colors
     }
 
     return render(request, "stat_track/create_matchday.html", context)
@@ -242,6 +256,7 @@ def edit_matchday(request, matchday_id):
 
     #get matchday
     matchday = get_object_or_404(MatchDay, pk=matchday_id)
+    league = matchday.league
 
     if "addMatch" in request.POST:
         
@@ -272,7 +287,7 @@ def edit_matchday(request, matchday_id):
                         stat_counter += 1
                         player = Player.objects.filter(pk=key).first()
                         goals = value
-                        stat = Stat(player=player, match=match, goals=goals)
+                        stat = Stat(player=player, match=match, goals=goals, league=league)
 
                         stat.full_clean()  # Validate stat data
                         stat.save()
@@ -292,6 +307,7 @@ def edit_matchday(request, matchday_id):
     form = MatchCreator()
 
     context = {
+        "league":league,
         "match_list":match_list,
         "matchday":matchday,
         "ticket_list":ticket_list,

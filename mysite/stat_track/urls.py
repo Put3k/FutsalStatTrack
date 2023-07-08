@@ -6,7 +6,7 @@ urlpatterns = [
     #HTML Views
     path("", views.home, name="home"),
 
-    path('player/<int:player_id>/', views.player_stats, name="player_stats"),
+    path('league/<int:league_id>/player/<int:player_id>/', views.player_stats, name="player_stats"),
 
     path('league/<int:league_id>/', views.league_home, name="league_home"),
     path('league/<int:league_id>/players_list/', views.players_list, name="players_list" ),
