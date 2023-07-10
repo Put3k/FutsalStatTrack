@@ -37,16 +37,16 @@
                     <td>{{ forloop.counter }}</th>
                     <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id player.id %}">{{ player.first_name }}</a></td>
                     <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id player.id %}">{{ player.last_name }}</a></td>
-                    <td>{{ player.get_player_goals }}</td>
-                    <td>{{ player.get_player_goals_per_match }}</td>
-                    <td>{{ player.get_player_matches_played }}</td>
+                    <td>{% get_player_goals_in_league player league %}</td>
+                    <td>{% get_player_goals_per_match_in_league player league %}</td>
+                    <td>{% get_player_matches_played_in_league player league %}</td>
                     <td>{% get_player_matchdays_in_league player league %}</td>
-                    <td>{{ player.get_total_points }}</td>
-                    <td>{{ player.get_points_per_match }}</td>
-                    <td>{{ player.get_player_wins }}</td>
-                    <td>{{ player.get_player_loses }}</td>
-                    <td>{{ player.get_player_draws }}</td>
-                    <td>{{ player.get_player_win_ratio }}</td>
+                    <td>{% get_total_points_in_league player league %}</td>
+                    <td>{% get_points_per_match_in_league player league %}</td>
+                    <td>{% get_player_wins_in_league player league %}</td>
+                    <td>{% get_player_loses_in_league player league %}</td>
+                    <td>{% get_player_draws_in_league player league %}</td>
+                    <td>{% get_player_win_ratio_in_league player league %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

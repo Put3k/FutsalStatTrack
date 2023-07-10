@@ -1,0 +1,19 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block title %} Delete {{ matchday.id }} {% endblock %}
+
+{% block content %}
+    <div class="card w-50 text-center">
+        <div class="card-header">
+            <h4>Are you sure to delete {{ matchday }}?</h4>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'matchday_delete' matchday.id %}" method="POST">
+                {% csrf_token %}
+                <input type="submit" value="delete" name="action" type="button" class="btn btn-danger me-4">
+                <input type="submit" value="cancel" name="action" type="button" class="btn btn-outline-dark ms-4">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -50,8 +50,10 @@ def league_home(request, league_id):
     owner = league.owner
 
     latest_match_day_list = MatchDay.objects.filter(league=league).order_by("-date")[:6]
+
+    #top 5 scorers list
     players_list = Player.objects.filter(leagues=league)
-    players_list = sorted(players_list, key=lambda x: x.get_player_goals, reverse=True)[:5]
+    players_list = sorted(players_list, key=lambda x: x.get_player_goals_in_league(league), reverse=True)[:5]
 
     context = {
         "latest_match_day_list": latest_match_day_list,
@@ -172,8 +174,21 @@ def matchday(request, matchday_id):
 def matchday_delete(request, matchday_id):
     matchday = get_object_or_404(MatchDay, id=matchday_id)
     league_id = matchday.league.id
-    matchday.delete()
-    return redirect(f'league_home', league_id)
+
+    if request.method == "POST":
+        decision = request.POST["action"]
+        if decision == "delete":
+            matchday.delete()
+            messages.success(request, "Matchday deleted successfully.")
+            return redirect(f'league_home', league_id)
+        elif decision == "cancel":
+            return redirect(f'matchday', matchday.id)
+    
+    context = {
+        "matchday": matchday,
+        "league_id": league_id,
+    }
+    return render(request, "stat_track/matchday_delete.html", context)
 
 @login_required
 @is_league_owner
