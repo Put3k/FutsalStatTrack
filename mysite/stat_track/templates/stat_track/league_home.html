@@ -1,7 +1,7 @@
 {% extends "./base.html" %}
 {% load static %}
 
-{% block title %} Home {% endblock %}
+{% block title %} {{ league.name }} {% endblock %}
 
 {% block scripts %}
     <script src="{% static 'stat_track/js/home.js' %}"></script>
@@ -11,17 +11,32 @@
     {% block content %}
     <div class="container">
         <div class="row">
-          <div class="col lg-10 card" data-bs-theme="dark">
-            <h1 class="text-center">Latest Matchdays</h1>
+            <div class="col lg-10 card bg-dark text-white m-2 text-center">
+                <div class="card-header">
+                    <h2>{{ league.name }}</h2>
+                </div>
+                <div class="card-content m-3">
+                    {% if request.user == owner %}
+                    <a href="{% url 'matchday_create' league.id %}"><button type="button" class="btn btn-outline-success">New Matchday</button></a>
+                    {% endif %}
+                    <a href="{% url 'players_list' league.id %}"><button type="button" class="btn btn-outline-success">Players List</button></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col lg-10 card bg-dark text-white m-2">
+            <div class="card-header">
+                <h2 class="text-center">Latest Matchdays</h2>
+            </div>
             <div class="list-group">
                 {% for matchday in latest_match_day_list %}
-                    <a href="{% url 'matchday' matchday.id %}" class="text-center list-group-item list-group-item-action list-group-item-dark">{{ matchday }}</a>
+                    <a href="{% url 'matchday' matchday.id %}" class="text-center list-group-item list-group-item-action bg-dark text-white">{{ matchday }}</a>
                 {% endfor %}
             </div>
           </div>
-          <div class="col lg-10 card" data-bs-theme="dark">
+          <div class="col lg-10 card bg-dark text-white m-2">
             <div class="card-header">
-                <h1 class="text-center">Top Scorers</h1>
+                <h2 class="text-center">Top Scorers</h2>
             </div>
             <div class="table-responsive">
                 <table id="playersList"class="table table-dark table-striped" style="white-space:nowrap;">
@@ -40,7 +55,7 @@
                         {% for player in players_list %}
                         <tr>
                             <td>{{ forloop.counter }}</th>
-                            <td><a href='player/{{ player.id }}'>{{ player }}</a></td>
+                            <td><a style="text-decoration: none" href='player/{{ player.id }}'>{{ player }}</a></td>
                             <td>{{ player.get_player_goals }}</td>
                             <td>{{ player.get_player_matches_played }}</td>
                             <td>{{ player.get_player_wins }}</td>

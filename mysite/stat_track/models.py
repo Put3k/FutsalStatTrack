@@ -1,22 +1,27 @@
+from datetime import date, datetime, time
+
+from django import template
+from django.contrib import admin
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
-from django.db.models.signals import post_save, post_delete
-from django.contrib.auth.models import User
-from django.contrib import admin
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import datetime, time, date
 
 TEAM_CHOICES = (
     ("blue", "blue"),
     ("orange", "orange"),
     ("colors", "colors")
 )
+
+
 class League(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=64)
     start_date = models.DateField(default=timezone.now)
+
 
     def __str__(self):
         return self.name
@@ -30,20 +35,38 @@ class Player(models.Model):
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    leagues = models.ManyToManyField(League, )
+    leagues = models.ManyToManyField(League)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
     @property
-    def get_player_matchdays(self):
+    def get_player_total_matchdays(self):
+        """
+        Returns number of total matchdays played by certain player.
+        """
         matchday_count = MatchDayTicket.objects.filter(player=self).count()
         return matchday_count
+
+    def get_player_matchdays_in_league(self, league):
+        """
+        Returns number of total matchdays played by certain player in certain league.
+        """
+        matchdays_id = MatchDayTicket.objects.filter(player=self).values('matchday')
+        matchday_count = MatchDay.objects.filter(pk__in=matchdays_id, league=league).count()
+
+        return matchday_count
+
 
     @property
     def get_player_matches_played(self):
         matches_played = Stat.objects.filter(player=self).count()
         return matches_played
+
+    def get_player_matches_played_in_league(self, league):
+        matches_played = Stat.objects.filter(player=self, league=league).count()
+        return matches_played
+
 
     @property
     def get_player_goals(self):
@@ -53,6 +76,15 @@ class Player(models.Model):
             return total_goals
         else:
             return 0
+
+    def get_player_goals_in_league(self, league):
+        goals_queryset = Stat.objects.filter(player=self, league=league).values_list('goals')
+        total_goals = goals_queryset.aggregate(Sum('goals'))['goals__sum']
+        if total_goals:
+            return total_goals
+        else:
+            return 0
+
 
     def get_player_goals_in_matchday(self, matchday):
         matches_list = list(Match.objects.filter(matchday=matchday).values_list(flat=True))
@@ -66,11 +98,14 @@ class Player(models.Model):
     @property
     def get_player_wins(self):
         stats = Stat.objects.filter(player=self)
-        wins = 0
-        for stat in stats:
-            if stat.win == True:
-                wins += 1
+        wins = sum(1 for stat in stats if stat.win==True)
         return wins
+
+    def get_player_wins_in_league(self, league):
+        stats = Stat.objects.filter(player=self, league=league)
+        wins = sum(1 for stat in stats if stat.win==True)
+        return wins
+
 
     @property
     def get_player_win_ratio(self):
@@ -78,12 +113,24 @@ class Player(models.Model):
         draw_count = self.get_player_draws
         matches_played = self.get_player_matches_played
         if matches_played == 0:
-            win_ratio = 0
+            win_ratio = 50
         else:
             win_ratio = round(((win_count+(draw_count/3))/matches_played)*100)
 
         return f"{win_ratio}%"
+
+    def get_player_win_ratio_in_league(self, league):
+        win_count = self.get_player_wins_in_league(league)
+        draw_count = self.get_player_draws_in_league(league)
+        matches_played = self.get_player_matches_played_in_league(league)
+
+        if not matches_played:
+            win_ratio = 50
+        else:
+            win_ratio = round(((win_count+(draw_count/3))/matches_played)*100)
+        return f"{win_ratio}%"
     
+
     @property
     def get_player_loses(self):
         stats = Stat.objects.filter(player=self)
@@ -93,6 +140,12 @@ class Player(models.Model):
                 loses += 1
         return loses
 
+    def get_player_loses_in_league(self, league):
+        stats = Stat.objects.filter(player=self, league=league)
+        loses = sum(1 for stat in stats if stat.win==False)
+        return loses
+
+
     @property
     def get_player_draws(self):
         stats = Stat.objects.filter(player=self)
@@ -101,6 +154,12 @@ class Player(models.Model):
             if stat.win == "Draw":
                 draws += 1
         return draws
+
+    def get_player_draws_in_league(self, league):
+        stats = Stat.objects.filter(player=self, league=league)
+        draws = sum(1 for stat in stats if stat.win=="Draw")
+        return draws
+
 
     @property
     def get_player_goals_in_match(self, match):
@@ -122,6 +181,18 @@ class Player(models.Model):
         else:
             return 0
 
+
+    def get_player_goals_per_match_in_league(self, league):
+        goals_queryset = Stat.objects.filter(player=self, league=league).values_list('goals')
+        total_goals = goals_queryset.aggregate(Sum('goals'))['goals__sum']
+        matches_count = Stat.objects.filter(player=self, league=league).count()
+        if total_goals:
+            goals_per_match = round(total_goals / matches_count, 2)
+            return goals_per_match
+        else:
+            return 0
+
+
     def get_player_team_in_matchday(self, matchday):
         ticket = MatchDayTicket.objects.get(player=self, matchday=matchday)
         team = ticket.team
@@ -135,10 +206,19 @@ class Player(models.Model):
         wins = self.get_player_wins
         draws = self.get_player_draws
         goals = self.get_player_goals
-
         score = (wins*3 + draws + goals*0.5)
-
         return score
+
+    def get_total_points_in_league(self, league):
+        stats_queryset = Stat.objects.filter(player=self, league=league)
+        goals_queryset = Stat.objects.filter(player=self, league=league).values_list('goals')
+
+        wins = self.get_player_wins_in_league(league)
+        draws = self.get_player_draws_in_league(league)
+        goals = self.get_player_goals_in_league(league)
+        score = (wins*3 + draws + goals*0.5)
+        return score
+    
 
     @property
     def get_points_per_match(self):
@@ -151,6 +231,18 @@ class Player(models.Model):
             points_per_match = 0
 
         return points_per_match
+
+    def get_points_per_match_in_league(self, league):
+        points = self.get_total_points_in_league(league)
+        matches_played = Stat.objects.filter(player=self, league=league).count()
+
+        if matches_played > 0:
+            points_per_match = round(points/matches_played, 2)
+        else:
+            points_per_match = 0
+
+        return points_per_match
+
 
     #Check if player already exists in database
     @property
@@ -349,7 +441,9 @@ class Stat(models.Model):
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
     goals = models.IntegerField(validators=[positive_validator], default=0)
+
 
     def __str__(self):
         return f"ID: {self.id} - {self.match}  - {self.player.first_name} {self.player.last_name}"
@@ -420,6 +514,11 @@ class Stat(models.Model):
             return False
         else:
             return True
+
+    def save(self, *args, **kwargs):
+        if not self.league:
+            self.league = self.match.matchday.league
+        super(Stat, self).save(*args, **kwargs)
 
     def clean(self):
         #Player validation

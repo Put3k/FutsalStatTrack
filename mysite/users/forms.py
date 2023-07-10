@@ -10,7 +10,7 @@ class RegisterUserForm(UserCreationForm):
     active_player = forms.BooleanField(
         required=True,
         label="Active Player",
-        help_text="Determine if You participate in games or just manage them and view statistics. You can change it later on"
+        help_text="Determine if You participate in games or just manage them and view statistics. You can change it later on."
         ,widget=forms.CheckboxInput(attrs={"class":"form-check-input"})
         )
 

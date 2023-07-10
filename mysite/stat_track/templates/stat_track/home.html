@@ -7,54 +7,39 @@
     <script src="{% static 'stat_track/js/home.js' %}"></script>
 {% endblock %}
 
-{% if latest_match_list %}
-    {% block content %}
-    <div class="container">
-        <div class="row">
-          <div class="col lg-10 card" data-bs-theme="dark">
-            <h1 class="text-center">Latest Matchdays</h1>
-            <div class="list-group">
-                {% for matchday in latest_match_day_list %}
-                    <a href="{% url 'matchday' matchday.id %}" class="text-center list-group-item list-group-item-action list-group-item-dark">{{ matchday }}</a>
-                {% endfor %}
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if user_owned_leagues %}
+        <div class='container-md'>
+            <div class='card bg-dark mb-4'>
+                <div class='card-header'>
+                    <h2 class='text-white'>Manage Your Leagues</h2>
+                </div>
+                <ul class="list-group list-group-flush bg-dark text-white">
+                    {% for league in user_owned_leagues %}
+                                <li class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" aria-current="true">
+                                    <h5>{{ league }}</h5>
+                                    <a href='league/{{ league.id }}'><button type="button" class="btn btn-dark">Manage</button></a>
+                                </li>
+                    {% endfor %}
+                </ul>
             </div>
-          </div>
-          <div class="col lg-10 card" data-bs-theme="dark">
-            <div class="card-header">
-                <h1 class="text-center">Top Scorers</h1>
+            <div class='card bg-dark mb-4'>
+                <div class='card-header'>
+                    <h2 class='text-white'>Leagues</h2>
+                </div>
+                <ul class="list-group list-group-flush bg-dark text-white">
+                    {% for league in player_leagues %}
+                                <li href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between" aria-current="true">
+                                    <h5>{{ league }}</h5>
+                                    <a href='league/{{ league.id }}'><button type="submit" class="btn btn-dark">View</button></a>
+                                </li>
+                    {% endfor %}
+                </ul>
             </div>
-            <div class="table-responsive">
-                <table id="playersList"class="table table-dark table-striped" style="white-space:nowrap;">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable(0)" scope="col" data-type="number">#</th>
-                            <th onclick="sortTable(1)" scope="col">Player</th>
-                            <th onclick="sortTable(2)" scope="col" data-type="number">Goals</th>
-                            <th onclick="sortTable(3)" scope="col" data-type="number">Matches</th>
-                            <th onclick="sortTable(4)" scope="col" data-type="number">Wins</th>
-                            <th onclick="sortTable(5)" scope="col" data-type="number">Points</th>
-                            <th onclick="sortTable(6)" scope="col" data-type="number">Winrate</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for player in players_list %}
-                        <tr>
-                            <td>{{ forloop.counter }}</th>
-                            <td><a href='player/{{ player.id }}'>{{ player }}</a></td>
-                            <td>{{ player.get_player_goals }}</td>
-                            <td>{{ player.get_player_matches_played }}</td>
-                            <td>{{ player.get_player_wins }}</td>
-                            <td>{{ player.get_total_points }}</td>
-                            <td>{{ player.get_player_win_ratio }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>      
-            </div>
-          </div>
         </div>
-      </div>
-    {% endblock %}
-{% else %}
-    <p>No matchdays are available.</p>
-{% endif %}
+        {% endif %}
+    {% else %}
+        <h1>Please register or log-in to access and modify leagues.</h1>
+    {% endif %}
+{% endblock %}

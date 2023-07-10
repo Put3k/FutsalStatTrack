@@ -1,6 +1,8 @@
-from django.contrib import admin
 from django import forms
-from .models import Match, MatchDay, MatchDayTicket, Player, Stat, League
+from django.contrib import admin
+
+from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
+
 
 class LeagueAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id', 'owner')
@@ -18,12 +20,10 @@ class MatchAdmin(admin.ModelAdmin):
     list_display_links = ('id', '__str__')
 
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ('id', '__str__', 'get_player_matches_played', 'get_player_goals', 'get_player_wins', 'get_player_loses', 'get_player_draws')
+    list_display = ('id', '__str__', 'user')
 
-
-# class StatAdmin(admin.ModelAdmin):
-#     def clean_fields(self, request, obj):
-#         if self.model_admin:
+class StatAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'id', 'league')
 
 
 admin.site.register(League, LeagueAdmin)
@@ -31,4 +31,4 @@ admin.site.register(MatchDay, MatchDayAdmin)
 admin.site.register(MatchDayTicket, MatchDayTicketAdmin)
 admin.site.register(Match, MatchAdmin)
 admin.site.register(Player, PlayerAdmin)
-admin.site.register(Stat)
+admin.site.register(Stat, StatAdmin)

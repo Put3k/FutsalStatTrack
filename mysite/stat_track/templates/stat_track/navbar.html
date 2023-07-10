@@ -6,15 +6,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'players_list' %}">Players List</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Matchdays List</a>
-                </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'create_matchday' %}">Create Match</a>
+                    <a class="nav-link" href="{% url 'league_create' %}">Create League</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -28,10 +22,10 @@
                 </li>
                 {% endif %}
             </ul>
-            <form class="d-flex" role="search">
+            {% comment %} <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search for player" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+            </form> {% endcomment %}
         </div>
     </div>
 </nav>

@@ -1,9 +1,32 @@
 from django import forms
 from django.forms import ModelForm, TextInput
-from .models import MatchDay, MatchDayTicket, Match, Player, Stat
+
+from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
+
 
 class DateInput(forms.DateInput):
     input_type = "date"
+
+class LeagueForm(forms.ModelForm):
+
+    class Meta:
+        model = League
+        fields = [
+            "name",
+            "start_date"
+            ]
+
+        widgets = {
+            "name": TextInput(attrs={
+                "class": "form-control mb-3",
+                "name": "League name",
+                "placeholder": "Champions League",
+                "required": "True"
+            }),
+            "start_date": DateInput(attrs={
+                "class": "form-control w-25 mb-3",
+            }),
+        }
 
 class MatchDayForm(forms.ModelForm):
     class Meta:
