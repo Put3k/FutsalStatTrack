@@ -41,7 +41,7 @@ def home(request):
         "player_leagues": player_leagues,
     }
 
-    return render(request, "stat_track/home.html", context)
+    return render(request, "home.html", context)
 
 @login_required
 @is_league_member_or_owner
@@ -61,7 +61,7 @@ def league_home(request, league_id):
         "league": league,
         "owner": owner
         }
-    return render(request, "stat_track/league_home.html", context)
+    return render(request, "league_home.html", context)
 
 @login_required
 def create_league(request):
@@ -86,7 +86,7 @@ def create_league(request):
         'form': form,
     }
 
-    return render(request, "stat_track/league_create.html", context)
+    return render(request, "league_create.html", context)
 
 
 # NOT IN USE
@@ -98,7 +98,7 @@ def moderator_panel(request):
 def player_stats(request, player_id, league_id):
     league = get_object_or_404(League, pk=league_id)
     player = get_object_or_404(Player, pk=player_id)
-    return render(request, "stat_track/player.html", {"player": player})
+    return render(request, "player.html", {"player": player})
 
 @login_required
 @is_league_member_or_owner
@@ -111,7 +111,7 @@ def players_list(request, league_id):
         "players_list": players_list,
     }
 
-    return render(request, "stat_track/players_list.html", context)
+    return render(request, "players_list.html", context)
 
 @login_required
 @is_league_member_or_owner
@@ -167,7 +167,7 @@ def matchday(request, matchday_id):
         "colors_stats": colors_stats,
         }
 
-    return render(request, "stat_track/matchday.html", context)
+    return render(request, "matchday.html", context)
 
 @login_required
 @is_league_owner
@@ -188,7 +188,7 @@ def matchday_delete(request, matchday_id):
         "matchday": matchday,
         "league_id": league_id,
     }
-    return render(request, "stat_track/matchday_delete.html", context)
+    return render(request, "matchday_delete.html", context)
 
 @login_required
 @is_league_owner
@@ -263,7 +263,7 @@ def match_creator_matchday(request, league_id):
         "team_colors": team_colors
     }
 
-    return render(request, "stat_track/create_matchday.html", context)
+    return render(request, "create_matchday.html", context)
 
 @login_required
 @is_league_owner
@@ -329,7 +329,7 @@ def edit_matchday(request, matchday_id):
         "form":form,
         }
 
-    return render(request, "stat_track/edit_matchday.html", context)
+    return render(request, "edit_matchday.html", context)
 
 @login_required
 def delete_match(request, match_id):
@@ -358,7 +358,7 @@ def load_players(request):
         players_home = Player.objects.filter(pk__in=players_home_id_list)
         context_home = {"players_home":players_home}
 
-        template_home = "stat_track/players_home_dropdown_list_options.html"
+        template_home = "players_home_dropdown_list_options.html"
         return render(request, template_home, context_home)
         # data["home_data"] = home_data
 
@@ -368,6 +368,6 @@ def load_players(request):
         players_away_id_list = MatchDayTicket.objects.filter(matchday=matchday, team=team_color).values_list("player", flat=True)
         players_away = Player.objects.filter(pk__in=players_away_id_list)
         context_away = {"players_away":players_away}
-        template_away = "stat_track/players_away_dropdown_list_options.html"
+        template_away = "players_away_dropdown_list_options.html"
 
         return render(request, template_away, context_away)
