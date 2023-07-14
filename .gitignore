@@ -1,5 +1,5 @@
 .env
-venv/
+venv
 Stat_tracker_tabelka.xlsx
 Django_Futsal_Stat_Tracker.code-workspace
 __pycache__/

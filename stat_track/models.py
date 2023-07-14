@@ -2,13 +2,14 @@ from datetime import date, datetime, time
 
 from django import template
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
+
+from accounts.models import CustomUser as User
 
 TEAM_CHOICES = (
     ("blue", "blue"),
