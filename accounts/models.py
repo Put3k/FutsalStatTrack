@@ -3,4 +3,5 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    pass
+    first_name = models.CharField(max_length=128)
+    last_name = models.CharField(max_length=128)

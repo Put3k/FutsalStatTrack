@@ -2,6 +2,7 @@ from datetime import date, datetime, time
 
 from django import template
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
@@ -9,17 +10,20 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from accounts.models import CustomUser as User
-
 TEAM_CHOICES = (
     ("blue", "blue"),
     ("orange", "orange"),
     ("colors", "colors")
 )
 
+User = get_user_model()
+
 
 class League(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    user_model = get_user_model()
+
+    owner = models.ForeignKey(user_model, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=64)
     start_date = models.DateField(default=timezone.now)
 
@@ -33,9 +37,11 @@ class League(models.Model):
 
 class Player(models.Model):
 
+    user_model = get_user_model()
+
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(user_model, null=True, blank=True, on_delete=models.SET_NULL)
     leagues = models.ManyToManyField(League)
 
     def __str__(self):
@@ -567,3 +573,13 @@ def decrement_match_counter(sender, instance, **kwargs):
 
         # Decrement match_in_matchday in all found records.
         matches_to_decrement.update(match_in_matchday=models.F('match_in_matchday') - 1)
+
+@receiver(post_save, sender=User)  
+def create_and_set_player(sender, instance, created, **kwargs):
+    """
+    Create and set Player model to user.
+    """
+    if created:
+        user = instance
+        player = Player(first_name=user.first_name, last_name=user.last_name, user=user)
+        player.save()
