@@ -10,6 +10,8 @@ services:
       - 8000:8000
     depends_on:
       - db
+    environment:
+      - "DJANGO_DEBUG=True"
   db:
     image: postgres:13
     volumes:
