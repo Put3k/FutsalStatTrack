@@ -136,7 +136,8 @@ def matchday(request, matchday_id):
         elif ticket.team == "colors":
             team_colors.append(ticket.player)
 
-    #Present teams stats as list
+
+    # Packing teams stats as list
 
     blue_stats = []
     orange_stats = []
@@ -289,7 +290,6 @@ def edit_matchday(request, matchday_id):
             away_goals = away_goals
         )
 
-        stat_list = []
         stat_counter = 0
 
         try:
@@ -298,18 +298,20 @@ def edit_matchday(request, matchday_id):
                 match.save()
 
                 for key, value in request.POST.items():
-                    if key.isdigit():
+                    
+                    if len(key)==36 and value.isdigit():
                         stat_counter += 1
-                        player = Player.objects.filter(pk=key).first()
                         goals = value
+                        player = Player.objects.get(pk=key)
+                        print(player)
                         stat = Stat(player=player, match=match, goals=goals, league=league)
-
+                        
                         stat.full_clean()  # Validate stat data
                         stat.save()
 
         except ValidationError as e:
             for error_message in e:
-                error_str = error_message[1][0]
+                error_str = error_message[1][0]     #hotfix due to printing ValidationError as string
                 messages.error(request, error_str)
 
 

@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime, time
 
 from django import template
@@ -8,6 +9,7 @@ from django.db import models, transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
 
 TEAM_CHOICES = (
@@ -23,6 +25,10 @@ class League(models.Model):
 
     user_model = get_user_model()
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     owner = models.ForeignKey(user_model, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=64)
     start_date = models.DateField(default=timezone.now)
@@ -31,6 +37,9 @@ class League(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("league_home", args=[str(self.pk)])
+    
     @property
     def player_count(self):
         pass
@@ -39,13 +48,18 @@ class Player(models.Model):
 
     user_model = get_user_model()
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
     user = models.ForeignKey(user_model, null=True, blank=True, on_delete=models.SET_NULL)
-    leagues = models.ManyToManyField(League)
+    leagues = models.ManyToManyField(League, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
 
     @property
     def get_player_total_matchdays(self):
@@ -98,7 +112,6 @@ class Player(models.Model):
         goals_queryset = Stat.objects.filter(player=self, match__in=matches_list).values_list('goals')
 
         total_goals = goals_queryset.aggregate(Sum('goals'))['goals__sum'] or 0
-
         return total_goals
 
 
@@ -282,6 +295,10 @@ class Player(models.Model):
 
 class MatchDay(models.Model):
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     league = models.ForeignKey(League, on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField("Date of match", default=datetime.now, blank=True)
     match_counter = models.PositiveIntegerField(default=0, )
@@ -289,6 +306,10 @@ class MatchDay(models.Model):
     def __str__(self):
         return f"Matchday {self.date.strftime('%d-%m-%Y')}"
 
+    def get_absolute_url(self):
+        return reverse("matchday", args=[self.pk])
+    
+    
     #Generates list of stats as string to display it as list
     @property
     def get_teams_stats_string(self):
@@ -366,8 +387,12 @@ class MatchDay(models.Model):
         return players_ids
         
 class MatchDayTicket(models.Model):
-    #Model to store data of players assigned to team in matchday
+    """Model to store data of players assigned to team in matchday"""
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     matchday = models.ForeignKey(MatchDay, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     team = models.CharField(choices=TEAM_CHOICES, max_length=16)
@@ -377,6 +402,10 @@ class MatchDayTicket(models.Model):
 
 class Match(models.Model):
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     matchday = models.ForeignKey(MatchDay, on_delete=models.CASCADE, default=None)
     team_home = models.CharField(choices=TEAM_CHOICES, max_length=20)
     team_away = models.CharField(choices=TEAM_CHOICES, max_length=20)
@@ -446,6 +475,10 @@ class Stat(models.Model):
         if value < 0:
             raise ValidationError('Value of this field can not be negative.')
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
@@ -453,7 +486,7 @@ class Stat(models.Model):
 
 
     def __str__(self):
-        return f"ID: {self.id} - {self.match}  - {self.player.first_name} {self.player.last_name}"
+        return f"ID: {self.pk} - {self.match}  - {self.player.first_name} {self.player.last_name}"
 
     @property
     def get_team(self):
