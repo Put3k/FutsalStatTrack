@@ -22,26 +22,48 @@ def home(request):
     player_leagues = []
     player = None
 
-    if request.user.is_authenticated:
-        user = request.user
-        player = Player.objects.get(user=user)
 
-        user_owned_leagues = League.objects.filter(owner=user)
-        player_leagues = player.leagues.all()
+    if not request.user.is_authenticated:
+        context = {
+            "user_owned_leagues": user_owned_leagues,
+            "player_leagues": player_leagues,}
+        return render(request, "home.html", context)
 
-    if len(user_owned_leagues) == 1 and len(player_leagues) == 1:
-        owned_league = user_owned_leagues[0]
-        player_league = player_leagues[0]
+    user = request.user
+    player = Player.objects.get(user=user)
+
+    # leagues querysets
+    user_owned_leagues = League.objects.filter(owner=user)
+    player_leagues = player.leagues.all()
+
+    # leagues counts
+    owned_count = user_owned_leagues.count()
+    member_count = player_leagues.count()
+
+    if owned_count + member_count == 0:
+        return redirect("league_create")
+
+    # Check if Player owns or play one league
+    if (member_count == 1 and owned_count == 0) or (member_count == 0 and owned_count == 1) or (member_count == 1 and owned_count == 1):
+
+        owned_league = user_owned_leagues.first()
+        player_league = player_leagues.first()
+
+        if (owned_count + member_count != 1) and (owned_league==player_league):
+            return redirect("league_home", owned_league.pk)
         
-        if owned_league==player_league:
-            return redirect(f"/league/{owned_league.id}/")
+        if owned_league:
+            return redirect("league_home", owned_league.pk)
+
+        if player_league:
+            return redirect("league_home", player_league.pk)
 
     context = {
         "user_owned_leagues": user_owned_leagues,
-        "player_leagues": player_leagues,
-    }
+        "player_leagues": player_leagues,}
 
     return render(request, "home.html", context)
+
 
 @login_required
 @is_league_member_or_owner

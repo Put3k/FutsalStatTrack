@@ -264,23 +264,23 @@ class Player(models.Model):
         return points_per_match
 
 
-    #Check if player already exists in database
-    @property
-    def player_is_valid(self):
-        first_name = self.first_name.capitalize()
-        last_name = self.last_name.capitalize()
+    #Check if player already exists in database - NOT IN USE
+    # @property
+    # def player_is_valid(self):
+    #     first_name = self.first_name.capitalize()
+    #     last_name = self.last_name.capitalize()
 
-        player_exists = Player.objects.filter(first_name=first_name, last_name=last_name).exists()
-        if player_exists:
-            player = Player.objects.get(first_name=first_name, last_name=last_name)
-        if player_exists and player != self:
-            return False
-        else:
-            return True
+    #     player_exists = Player.objects.filter(first_name=first_name, last_name=last_name).exists()
+    #     if player_exists:
+    #         player = Player.objects.get(first_name=first_name, last_name=last_name)
+    #     if player_exists and player != self:
+    #         return False
+    #     else:
+    #         return True
 
-    def clean(self):
-        if not self.player_is_valid:
-            raise ValidationError("Player already exists")
+    # def clean(self):
+    #     if not self.player_is_valid:
+    #         raise ValidationError("Player already exists")
 
     #Override save method to save data with capital letters
     def save(self, *args, **kwargs):
