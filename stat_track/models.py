@@ -574,6 +574,30 @@ class Stat(models.Model):
             if not self.team_is_valid:
                 raise ValidationError(f'Team {self.get_team} does not appear in this match.', code="invalid_team")
 
+class JoinRequest(models.Model):
+    """Request to join league as a player."""
+
+
+    class JoinRequestStatusChoices(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+
+    league = models.ForeignKey(
+        to=League, related_name="join_requests", on_delete=models.CASCADE
+    )
+    player = models.ForeignKey(
+        to=Player, related_name="join_requests", on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        max_length=15,
+        choices=JoinRequestStatusChoices.choices,
+        default=JoinRequestStatusChoices.PENDING,
+    )
+
+
+
+
 
 @receiver(post_save, sender=Match)
 def increment_match_counter(sender, instance, created, **kwargs):

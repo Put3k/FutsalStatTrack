@@ -3,7 +3,9 @@ from django.contrib import admin
 
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 
+do
 
+# ModelAdmin
 class LeagueAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id', 'owner')
 
@@ -21,6 +23,7 @@ class MatchAdmin(admin.ModelAdmin):
 
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__', 'user')
+
 
 class StatAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id', 'league')
