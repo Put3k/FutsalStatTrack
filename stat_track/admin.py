@@ -3,7 +3,6 @@ from django.contrib import admin
 
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 
-do
 
 # ModelAdmin
 class LeagueAdmin(admin.ModelAdmin):
