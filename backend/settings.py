@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'stat_track.apps.StatTrackConfig',
     'users.apps.UsersConfig',
     'accounts.apps.AccountsConfig',
+    'invitations.apps.InvitationsConfig',
     'api',
 
     # Third-party
