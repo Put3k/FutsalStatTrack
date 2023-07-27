@@ -78,10 +78,10 @@
                             <div class='col'>
                                 <div class='input-group-text bg-dark border-0 w-100'>
                                     <select name="team_home" class="form-control bg-dark text-white w-75" required="" id="id_team_home">
-                                        <option value="" selected="">---------</option>                                        
-                                        <option value="blue">Blue</option>                                         
-                                        <option value="orange">Orange</option>                                         
-                                        <option value="colors">Colors</option>                               
+                                        <option value="" selected="">---------</option>
+                                        {% for team in teams %}                                                                             
+                                            <option value="{{team}}">{{team}}</option>
+                                        {% endfor %}                                                                  
                                     </select>
                                     <input type="number" name="home_goals" value="0" class="form-control bg-dark text-white w-25" required="" id="id_home_goals" readonly>                    
                                 </div>
@@ -91,9 +91,9 @@
                                     <input type="number" name="away_goals" value="0" class="form-control bg-dark text-white w-25" required="" id="id_away_goals" readonly>
                                     <select name="team_away" class="form-control bg-dark text-white w-75" required="" id="id_team_away">
                                         <option value="" selected="">---------</option>                                        
-                                        <option value="blue">Blue</option>                                         
-                                        <option value="orange">Orange</option>                                         
-                                        <option value="colors">Colors</option>                               
+                                        {% for team in teams %}                                                                             
+                                            <option value="{{team}}">{{team}}</option>
+                                        {% endfor %}                                 
                                     </select>
                                 </div>
                             </div>

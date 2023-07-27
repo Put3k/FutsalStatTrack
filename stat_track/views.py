@@ -368,6 +368,13 @@ def edit_matchday(request, matchday_id):
     #get matchday tickets
     ticket_list = MatchDayTicket.objects.filter(matchday=matchday)
 
+    #get teams participating in matchday
+    team_colors = {}
+    for ticket in ticket_list:
+        color = ticket.team.lower()
+        team_colors[color] = team_colors.get(color, 0) + 1
+    teams = [color for color, count in team_colors.items() if count > 0]
+
     form = MatchCreator()
 
     context = {
@@ -375,6 +382,7 @@ def edit_matchday(request, matchday_id):
         "match_list":match_list,
         "matchday":matchday,
         "ticket_list":ticket_list,
+        "teams":teams,
         "form":form,
         }
 
