@@ -300,7 +300,7 @@ class MatchDay(models.Model):
         default=uuid.uuid4,
         editable=False)
     league = models.ForeignKey(League, on_delete=models.SET_NULL, null=True)
-    date = models.DateTimeField("Date of match", default=datetime.now, blank=True)
+    date = models.DateTimeField("Date of match", default=datetime.now)
     match_counter = models.PositiveIntegerField(default=0, )
 
     def __str__(self):

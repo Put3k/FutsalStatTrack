@@ -237,6 +237,28 @@ def match_creator_matchday(request, league_id):
         team_orange = request.POST.getlist("team_orange")
         team_colors = request.POST.getlist("team_colors")
 
+        blue_empty = len(team_blue) == 0
+        orange_empty = len(team_orange) == 0
+        colors_empty = len(team_colors) == 0
+
+        #Check if at least 2 teams are populated
+        if blue_empty + orange_empty + colors_empty > 1:
+
+            messages.error(request, "There must be at least 2 teams populated!")
+
+            form = MatchDayForm(request.POST)
+
+            context = {
+                "league": league,
+                "list_of_players": list_of_players,
+                "form": form,
+                "player_form": player_form,
+                "team_blue": team_blue,
+                "team_orange": team_orange,
+                "team_colors": team_colors
+            }
+            return render(request, "create_matchday.html", context)
+
         if "saveMatchday" in request.POST:
 
             #Save MatchDay form and access instance of it.
@@ -254,11 +276,14 @@ def match_creator_matchday(request, league_id):
                 matchday.date = modified_date
                 matchday.save()
 
-            create_matchday_tickets(team_blue, matchday, "blue")
-            create_matchday_tickets(team_orange, matchday, "orange")
-            create_matchday_tickets(team_colors, matchday, "colors")
+                create_matchday_tickets(team_blue, matchday, "blue")
+                create_matchday_tickets(team_orange, matchday, "orange")
+                create_matchday_tickets(team_colors, matchday, "colors")
 
-            return redirect(f"/matchday/{matchday.id}/edit")
+                return redirect(f"/matchday/{matchday.id}/edit")
+            
+            else:
+                messages.error(request, "Date of matchday is required!")
 
         elif "addPlayer" in request.POST:
 
