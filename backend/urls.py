@@ -11,7 +11,6 @@ urlpatterns = [
 
     # Local apps
     path('', include("stat_track.urls")),
-    path('invitations/', include("invitations.urls")),
     
     # API
     path('api/', include("api.urls")),

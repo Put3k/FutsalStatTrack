@@ -24,10 +24,9 @@ class Invitation(models.Model):
     
 
     def __str__(self):
-        return f"{self.player}-{self.league}"
+        return str(self.id)
 
     def expired(self):
         expiration_date = self.created + datetime.timedelta(
             days=3)
-
         return expiration_date <= timezone.now()

@@ -12,8 +12,8 @@ def get_league(*args, **kwargs):
     depending on the context. If the kwargs does not pass the key "league_id", "matchday_id" ... 
     the function raises a ValueError.
     """
+    
     league_id = kwargs.get('league_id')
-
     if league_id:
         league = get_object_or_404(League, pk=league_id)
         return league

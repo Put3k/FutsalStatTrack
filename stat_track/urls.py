@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.home, name="home"),
 
     path('league/<uuid:league_id>/player/<uuid:player_id>/', views.player_stats, name="player_stats"),
+    path('league/<uuid:league_id>/invite/', include("invitations.urls")),
 
     path('league/<uuid:league_id>/', views.league_home, name="league_home"),
     path('league/create/', views.create_league, name="league_create"),
