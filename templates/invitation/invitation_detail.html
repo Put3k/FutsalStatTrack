@@ -1,8 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ invitation }}{% endblock title %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'invitations/style/invitation_detail.css' %}">
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'invitations/js/invitation_detail.js' %}"></script>
+{% endblock %}
+
+
 {% block content %}
-    {{ invitation.league }}
-    {{ invitation.player }}
+<div class="card bg-dark text-white">
+	<div class="label card-header">
+		<h3>Invitation URL</h3>
+        {{ invitation.league }} - {{ invitation.player }}
+	</div>
+	<div class="copy-text card-body input-group">
+		<input type="text" class="text form-control" value="{{ invitation.player }}" readonly/>
+		<button class="btn btn-primary">Copy</button>
+	</div>
+</div>
 {% endblock content %}

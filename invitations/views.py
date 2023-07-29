@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.detail import DetailView
@@ -18,8 +19,16 @@ def create_invitation(request, league_id, player_id):
     player = get_object_or_404(Player, pk=player_id)
     league = get_object_or_404(League, pk=league_id)
 
-    #CREATE LOGIC TO CHECK IF THERE IS NO INVITATION FOR THIS PLAYER TO THIS LEAGUE EXCEPTING EXPIRED ONES
-    
+    # Check if there is no active invitations for this player:
+    invitations = Invitation.objects.filter(player=player, league=league)
+    for invitation in invitations:
+        if not invitation.expired:
+            messages.error(request, "There is an active invitation linked to this player!")
+            return redirect("players_list", league.id)
+        if invitation.accepted:
+            messages.error(request, "This player has already accepted the invitation.")
+            return redirect("players_list", league.id)
+
     invite = Invitation(
         inviter = inviter,
         player = player,
