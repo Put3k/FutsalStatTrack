@@ -26,6 +26,7 @@ class Invitation(models.Model):
     def __str__(self):
         return str(self.id)
 
+    @property
     def expired(self):
         expiration_date = self.created + datetime.timedelta(
             days=3)

@@ -25,6 +25,8 @@ def create_invitation(request, league_id, player_id):
         if not invitation.expired:
             messages.error(request, "There is an active invitation linked to this player!")
             return redirect("players_list", league.id)
+            
+        #(IN CASE USER ASSIGNMENT GOES WRONG)
         if invitation.accepted:
             messages.error(request, "This player has already accepted the invitation.")
             return redirect("players_list", league.id)
