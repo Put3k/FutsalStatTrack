@@ -56,7 +56,7 @@
                     {% else %}
                         <td>
                             <form action={% url 'invitation_create' league.id player.id %}>
-                                <input class=btn btn-primary type=submit value=Invite>
+                                <button type="submit" class="btn btn-primary">Invite</button>
                             </form>
                         </td>
                     {% endif %}

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     'allauth',
     'allauth.account',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -70,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -171,12 +173,15 @@ REST_FRAMEWORK = {
 }
 
 # django-allauth config
+ACCOUNT_ADAPTER = "accounts.adapter.MyAccountAdapter"
 ACCOUNT_LOGOUT_REDIRECT = "home"
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
+
+
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
@@ -187,3 +192,10 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_FORMS = {'signup': 'accounts.forms.CustomSignupForm'}
 
 DEFAULT_FROM_EMAIL = "admin@statrack.com"
+
+
+# django-debug-toolbar
+import socket
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]

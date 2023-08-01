@@ -17,7 +17,6 @@ def create_invitation(request, league_id, player_id):
 
     inviter = request.user
 
-    print("\n", player_id, league_id, "\n")
     player = get_object_or_404(Player, pk=player_id)
     league = get_object_or_404(League, pk=league_id)
 
@@ -44,10 +43,9 @@ def create_invitation(request, league_id, player_id):
 
 
 def accept_invitation(request, league_id, key):
+
     invitation_id = uuid.UUID(key[:-36])
     player_id = uuid.UUID(key[36:])
-    print(invitation_id)
-    print(player_id)
 
     league = get_object_or_404(League, pk=league_id)
     invitation = get_object_or_404(Invitation, pk=invitation_id)
@@ -63,9 +61,11 @@ def accept_invitation(request, league_id, key):
 
     context = {
         "player": player,
+        "league": league,
     }
 
     return render(request, "invitation/invitation_accept.html", context)
+
 
 
 class InvitationDetail(DetailView):
@@ -77,7 +77,6 @@ class InvitationDetail(DetailView):
         context = super().get_context_data(**kwargs)
         instance = self.get_object()
         accept_url = instance.accept_url(self.request)
-        print(accept_url)
         context["accept_url"] = accept_url 
         return context
     
