@@ -173,7 +173,6 @@ REST_FRAMEWORK = {
 }
 
 # django-allauth config
-ACCOUNT_ADAPTER = "accounts.adapter.MyAccountAdapter"
 ACCOUNT_LOGOUT_REDIRECT = "home"
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = (

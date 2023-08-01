@@ -62,6 +62,7 @@ def accept_invitation(request, league_id, key):
     context = {
         "player": player,
         "league": league,
+        "key": key,
     }
 
     return render(request, "invitation/invitation_accept.html", context)

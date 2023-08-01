@@ -27,7 +27,7 @@
 				</div>
 				<div class ="row text-center">
 					<div class="col-sm">
-						<form action="{% url 'account_login' %}?next={{request.path}}">
+						<form action="{% url 'account_login' %}?next={% url 'invitation_accept' league.id key %}">
 							{% csrf_token %}
 							<p><button type="submit" class="btn btn-primary">Log in</button></p>
 							<input type="hidden" name="next" value="{{ request.path }}" />
