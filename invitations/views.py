@@ -77,7 +77,7 @@ class InvitationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         instance = self.get_object()
-        accept_url = instance.accept_url(self.request)
+        accept_url = instance.accept_url
         context["accept_url"] = accept_url 
         return context
     

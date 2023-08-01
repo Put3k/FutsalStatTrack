@@ -61,6 +61,11 @@ class Player(models.Model):
         return f"{self.first_name} {self.last_name}"
     
 
+    def get_invitation(self):
+        invitation = self.invitation.all().first()
+        return invitation
+
+
     @property
     def get_player_total_matchdays(self):
         """

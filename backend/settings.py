@@ -33,6 +33,9 @@ DEBUG = env.bool("DJANGO_DEBUG")
 
 ALLOWED_HOSTS = [".herokuapp.com", "localhost", "127.0.0.1"]
 
+# Default host used to determine absolute urls
+HOST = os.environ.get("HOST", default="http://localhost:8000")
+
 # Application definition
 
 INSTALLED_APPS = [
