@@ -10,7 +10,18 @@
 
 {% block content %}
 	{% if user.is_authenticated %}
-		Merge Player to user
+		<div class="card bg-dark text-white">
+			<div class="card-header">
+				Invitation
+			</div>
+			<div class="card-body">
+				<h5 class="card-title"><p>Player: {{ player }}</p><p>League: {{ league }}</p></h5>
+				<form action="" method="POST">
+					{% csrf_token %}
+					<button type="submit" class="btn btn-success" name="mergeUser" value="mergeUser">Confirm</button>
+				</from>
+			</div>
+		</div>
 	{% else %}
 		<div class="card bg-dark text-white">
 			<div class="card-header">

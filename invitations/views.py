@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.detail import DetailView
 
 from stat_track.decorators import is_league_owner
-from stat_track.models import League, Player
+from stat_track.models import League, Player, Stat, MatchDayTicket
 
 from .models import Invitation
 
@@ -52,10 +52,20 @@ def accept_invitation(request, league_id, key):
     player = get_object_or_404(Player, pk=player_id)
 
     if request.method == 'POST':
-        if request.POST.get('user_exists'):
-            #user already has an account and we redirect him to login page and merge player to user assigned player
-            pass
-        if request.POST.get('user_not_exists'):
+        # If user has an account and accepts invitation, existing player stats are merged into user.player and old player is deleted.
+        if request.POST.get('mergeUser', ''):
+            user_player = Player.objects.get(user=request.user)
+            Stat.objects.filter(player=player).update(player=user_player)
+            MatchDayTicket.objects.filter(player=player).update(player=user_player)
+            leagues = player.leagues.all()
+            user_player.leagues.add(*leagues)
+
+            player.delete()
+            
+            return redirect('home')
+
+        # If new user signs up, existing player is assigned as his player.
+        if request.POST.get('signup-user'):
             #signup and merge player to user
             pass
 
