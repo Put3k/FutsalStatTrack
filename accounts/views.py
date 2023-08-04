@@ -9,4 +9,6 @@ class SignupPageView(generic.CreateView):
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
 
+    #Player is created and assigned within stat_track.models.create_and_set_player
+
 

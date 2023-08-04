@@ -15,10 +15,14 @@
 				Invitation
 			</div>
 			<div class="card-body">
-				<h5 class="card-title"><p>Player: {{ player }}</p><p>League: {{ league }}</p></h5>
+				<p>You have been invited to join the <b>{{ league }}</b> league as a player, <b>{{ player }}</b>. Player name will be changed to your name.<br>
+					Please confirm your participation in the league.</p>
+
+					<p>League Name: <b>{{ league }}</b></p>
+					<p>Player Name: <b>{{ player }}</b></p>
 				<form action="" method="POST">
 					{% csrf_token %}
-					<button type="submit" class="btn btn-success" name="mergeUser" value="mergeUser">Confirm</button>
+					<button type="submit" class="btn btn-success mt-3" name="mergeUser" value="mergeUser">Confirm</button>
 				</from>
 			</div>
 		</div>
@@ -45,7 +49,11 @@
 						</form>
 					</div>
 					<div class="col-sm">
-						<p><button type="button" class="btn btn-primary">Sign up</button></p>
+						<form action="{% url 'account_signup' %}?next={% url 'invitation_accept' league.id key %}">
+							{% csrf_token %}
+							<p><button type="submit" class="btn btn-primary">Sign up</button></p>
+							<input type="hidden" name="next" value="{{ request.path }}" />
+						</form>
 					</div>
 				</div>
 			</div>

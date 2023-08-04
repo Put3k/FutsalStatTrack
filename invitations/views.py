@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.detail import DetailView
 
 from stat_track.decorators import is_league_owner
-from stat_track.models import League, Player, Stat, MatchDayTicket
+from stat_track.models import League, MatchDayTicket, Player, Stat
 
 from .models import Invitation
 
@@ -50,6 +50,7 @@ def accept_invitation(request, league_id, key):
     league = get_object_or_404(League, pk=league_id)
     invitation = get_object_or_404(Invitation, pk=invitation_id)
     player = get_object_or_404(Player, pk=player_id)
+    request.session['player'] = key[36:]
 
     if request.method == 'POST':
         # If user has an account and accepts invitation, existing player stats are merged into user.player and old player is deleted.
@@ -61,11 +62,10 @@ def accept_invitation(request, league_id, key):
             user_player.leagues.add(*leagues)
 
             player.delete()
-            
             return redirect('home')
 
         # If new user signs up, existing player is assigned as his player.
-        if request.POST.get('signup-user'):
+        if request.POST.get('signup-user', ''):
             #signup and merge player to user
             pass
 
