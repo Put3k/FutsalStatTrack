@@ -57,12 +57,12 @@
                     {% else %}
                         {% if player.get_invitation.is_active %}
                             <form action={% url 'invitation_detail' league.id player.get_invitation %}>
-                                <button type="submit" class="btn btn-primary">Invite</button>
+                                <button type="submit" class="btn btn-success">Invite</button>
                             </form>
                         {% else %}
                             
                                 <form action={% url 'invitation_create' league.id player.id %}>
-                                    <button type="submit" class="btn btn-secondary">Invite</button>
+                                    <button type="submit" class="btn btn-success">Invite</button>
                                 </form>
                             
                         {% endif %}

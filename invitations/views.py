@@ -53,9 +53,15 @@ def accept_invitation(request, league_id, key):
     request.session['player'] = key[36:]
 
     if request.method == 'POST':
+        user_player = Player.objects.get(user=request.user)
+
+        # If player associated with user is already connected to this league, he cannot join.
+        if league in user_player.leagues.all():
+            messages.error(request, "You already participate in that league!")
+            return redirect('home')
+
         # If user has an account and accepts invitation, existing player stats are merged into user.player and old player is deleted.
         if request.POST.get('mergeUser', ''):
-            user_player = Player.objects.get(user=request.user)
             Stat.objects.filter(player=player).update(player=user_player)
             MatchDayTicket.objects.filter(player=player).update(player=user_player)
             leagues = player.leagues.all()
@@ -63,11 +69,6 @@ def accept_invitation(request, league_id, key):
 
             player.delete()
             return redirect('home')
-
-        # If new user signs up, existing player is assigned as his player.
-        if request.POST.get('signup-user', ''):
-            #signup and merge player to user
-            pass
 
     context = {
         "player": player,
