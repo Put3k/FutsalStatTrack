@@ -6,6 +6,13 @@ from ..models import Player
 
 
 @register.simple_tag
+def is_league_owner(user, league):
+    if league.owner is user:
+        return True
+    return False
+
+
+@register.simple_tag
 def get_player_matchdays_in_league(player, league):
     return player.get_player_matchdays_in_league(league)
 
