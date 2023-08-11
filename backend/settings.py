@@ -193,8 +193,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_FORMS = {'signup': 'accounts.forms.CustomSignupForm'}
 
-DEFAULT_FROM_EMAIL = "admin@statrack.com"
-
 
 # django-debug-toolbar
 import socket
