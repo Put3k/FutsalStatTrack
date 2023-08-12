@@ -11,6 +11,7 @@ urlpatterns = [
 
     # Local apps
     path('', include("stat_track.urls")),
+    path('upload/', include("upload.urls")),
     
     # API
     path('api/', include("api.urls")),

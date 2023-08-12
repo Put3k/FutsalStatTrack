@@ -15,6 +15,7 @@ from pathlib import Path
 
 from decouple import config
 from environs import Env
+from google.oauth2 import service_account
 
 env = Env()
 env.read_env()
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'invitations.apps.InvitationsConfig',
     'api',
+    'upload.apps.UploadConfig',
 
     # Third-party
     "crispy_forms",
@@ -200,3 +202,9 @@ import socket
 
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
+
+# storage
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, 'credential.json'))
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'bucket_django_stat_track'
