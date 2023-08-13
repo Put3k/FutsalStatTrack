@@ -1,4 +1,5 @@
 import datetime
+import io
 import json
 
 from django.contrib import messages
@@ -6,15 +7,34 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.views.generic import TemplateView, View
 from rest_framework import generics
 
 from .decorators import is_league_member_or_owner, is_league_owner
 from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm, StatForm
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 from .serializers import PlayerSerializer
+from .utils.pdf_process import html_to_pdf
+
+
+# Generating PDF view
+class GeneratePdf(View):
+    def get(self, request, *args, **kwargs):
+        league = League.objects.get(pk=kwargs.get("league_id"))
+        players_list = Player.objects.filter(leagues=league).order_by("last_name")
+        date = datetime.date.today().strftime("%d/%m/%Y")
+
+        open('templates/temp.html', "w").write(render_to_string('league_pdf.html', {'league':league, 'players_list': players_list, 'date': date}))
+
+        # Converting the HTML template into a PDF file
+        pdf = html_to_pdf('temp.html')
+         
+         # rendering the template
+        return HttpResponse(pdf, content_type='application/pdf')
 
 
 def home(request):
@@ -112,8 +132,8 @@ def create_league(request):
 
 
 # NOT IN USE
-def moderator_panel(request):
-    return HttpResponse("Moderator Panel")
+# def moderator_panel(request):
+#     return HttpResponse("Moderator Panel")
 
 @login_required
 @is_league_member_or_owner

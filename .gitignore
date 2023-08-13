@@ -6,6 +6,7 @@ __pycache__/
 /py_client
 old.git
 old
+requirements_o.txt
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,django,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,django,python
