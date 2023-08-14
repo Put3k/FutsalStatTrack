@@ -12,8 +12,8 @@ class Report(models.Model):
         primary_key = True,
         default=uuid.uuid4,
         editable=False)
-    league = models.ForeignKey(League, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE, related_name="reports")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
     generated = models.DateField()
 
     def __str__(self):

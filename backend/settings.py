@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'invitations.apps.InvitationsConfig',
     'api',
     'upload.apps.UploadConfig',
+    'pdf_generator.apps.PdfGeneratorConfig',
 
     # Third-party
     "crispy_forms",

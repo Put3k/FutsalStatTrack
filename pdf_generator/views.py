@@ -5,11 +5,15 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.generic import View
+from django.views.generic.list import ListView
+from django.contrib.auth import get_user_model
 
 from stat_track.models import League, Player
+from .models import Report
 
 from .utils.pdf_process import html_to_pdf
 
+User = get_user_model()
 
 class GeneratePdf(View):
     def get(self, request, *args, **kwargs):
@@ -32,3 +36,10 @@ class PdfView(View):
         pass
 
 # Managing user saved Reports
+class UserReportListView(ListView):
+    model = Report
+    template_name = "pdf_generator/user_report_list.html"
+    context_object_name = "report_list"
+
+    def get_queryset(self):
+        return self.request.user.reports.all()
