@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from django.views import View
 from django.http.response import HttpResponse
 from django.middleware.csrf import get_token
+from django.shortcuts import render
+from django.views import View
 
 from .models import Upload
+
 
 class UploadView(View):
 

@@ -19,9 +19,6 @@ urlpatterns = [
     path('matchday/<uuid:matchday_id>/delete', views.matchday_delete, name="matchday_delete"),
 
     path('delete_match/<uuid:match_id>/', views.delete_match, name="delete_match"),
-
-    #PDF generating view
-    path('league/<uuid:league_id>/pdf', views.GeneratePdf.as_view(), name="league_pdf"),
     
     #AJAX Data Views
     path('ajax_load_players/', views.load_players, name='ajax_load_players'), #AJAX
