@@ -15,6 +15,8 @@ class Report(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE, related_name="reports")
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
     generated = models.DateField()
+    url = models.URLField(max_length=200)
+
 
     def __str__(self):
         return f"stat-track-report-{self.league}-{self.generated}"

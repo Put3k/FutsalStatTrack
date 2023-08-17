@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Report
+
+
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'id', 'owner', 'league')
+
+admin.site.register(Report, ReportAdmin)
