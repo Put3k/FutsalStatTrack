@@ -15,7 +15,8 @@ class Report(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE, related_name="reports")
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
     generated = models.DateField()
-    url = models.URLField(max_length=200)
+    # url = models.URLField(max_length=200)
+    pdf = models.FileField(upload_to='Reports', blank=True)
 
 
     def __str__(self):
