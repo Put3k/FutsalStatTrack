@@ -4,10 +4,10 @@ from tempfile import NamedTemporaryFile
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.generic import View
-from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from stat_track.models import League, Player
@@ -29,39 +29,35 @@ class GeneratePdf(View):
         # Converting the HTML template into a PDF file
         pdf = html_to_pdf('temp.html')
         
-        # Save temporary pdf file and upload it to GCS
+        # Save temporary pdf file and upload it to GCS as pdf file assigned to user_id so that multiple user can generate reports at once.
         with NamedTemporaryFile(mode='w+b') as temp:
             temp.write(pdf)
             temp.seek(0)
 
             with open(temp.name, 'rb') as saved_file:
-                file_uri = Upload.upload_file(saved_file, "temporary.pdf")
+                user_id = request.user.id
+                file_uri = Upload.upload_file(saved_file, f"{user_id}/temp.pdf")
             temp.close()
-        
+
+        report = Report(league=league, owner=request.user, generated=datetime.date.today())
+        report.save()
+
+        return redirect('pdf_success', report.id)
          
-         # rendering the template
-        return HttpResponse("<embed src='%s' width='800px' height='2100px' />" % (file_uri))
 
 
 
 # View of newly generated Report
-class PdfSuccess(TemplateView):
-    template_name = "report_success"
+class PdfSuccess(DetailView):
+    model = Report
+    template_name = "pdf_generator/report_success.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        #Data passed from pdf generator
-        gcs_url = self.request.GET.get("gcs_url")
-        owner = self.request.GET.get("owner")
-        generated = self.request.GET.get("generated")
-        league = self.request.GET.get("league")
-
-        context["gcs_url"] = gcs_url
-        context["owner"] = owner
-        context["generated"] = generated
-        context["league"] = league
         return context
+
+    def get_object(self):
+        return get_object_or_404(Report, pk=self.kwargs['report_id'])
     
 
 # Managing user saved Reports

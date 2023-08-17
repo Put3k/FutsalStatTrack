@@ -11,5 +11,5 @@ urlpatterns = [
     path('user_reports/', views.UserReportListView.as_view(), name="user_reports"),
 
     #PDF Detail View
-    path('<uuid:report_id>/', views.PdfSuccess.as_view(), name="pdf_detail"),
+    path('<uuid:report_id>/', views.PdfSuccess.as_view(), name="pdf_success"),
 ]
