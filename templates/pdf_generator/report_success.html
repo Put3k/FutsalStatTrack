@@ -4,23 +4,6 @@
 {% block title %}Report Detail{% endblock %}
 
 {% block content %}
-{% comment %} <div class="card bg-dark text-white">
-    <div class="card-header text-center">
-        <h3>{{ object }}</h3>
-    </div>
-    <div class="card-body">
-        League: <b>{{ object.league }}</b></br>
-        Generated on <b>{{ object.generated }}</b></br>
-        <div>
-            <button type="button" class="btn btn-success" onclick="window.location.href='{{object.pdf.url}}'">
-                View Report
-            </button>
-            <form action="save-report" method="post">
-                <input class="btn btn-primary" type="submit" value="Save to Cloud">
-            </form>
-        </div>
-    </div>
-</div> {% endcomment %}
 <div class="card bg-dark text-white">
     <div class="card-header text-center">
         <h3>{{ object }}</h3>
@@ -39,5 +22,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

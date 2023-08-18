@@ -1,6 +1,7 @@
 import datetime
 from tempfile import NamedTemporaryFile
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.http import FileResponse
@@ -70,13 +71,16 @@ class PdfSuccess(DetailView):
     def post(self, request, *args, **kwargs):
         print(request.POST)
         if "save-to-cloud" in request.POST:
-            new_report = Report.objects.get(pk=self.kwargs['report_id'])
-            new_report.temporary = False
-            new_report.pk = None
-            new_report.id = None
-            new_report._state.adding = True
-            new_report.save()
-            print(new_report.pk)
+            # Check if user have empty slots for saving report
+            if len(request.user.reports.all()) < 4:
+                new_report = Report.objects.get(pk=self.kwargs['report_id'])
+                new_report.temporary = False
+                new_report.pk = None
+                new_report.id = None
+                new_report._state.adding = True
+                new_report.save()
+            else:
+                messages.error(request, "You have no free spots to save new report. You can store up to 3 reports!\nPlease delete existing report.")
         return redirect('user_reports')
 
     def get_object(self):
@@ -90,7 +94,7 @@ class UserReportListView(ListView):
     context_object_name = "report_list"
 
     def get_queryset(self):
-        return self.request.user.reports.all()
+        return self.request.user.reports.filter(temporary=False)
 
 class ReportDeleteView(
     DeleteView):
