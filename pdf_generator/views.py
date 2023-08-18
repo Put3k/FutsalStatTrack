@@ -6,8 +6,10 @@ from django.core.files import File
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.views.generic import View
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeleteView
 from django.views.generic.list import ListView
 from google.cloud import storage
 
@@ -77,3 +79,12 @@ class UserReportListView(ListView):
 
     def get_queryset(self):
         return self.request.user.reports.all()
+
+class ReportDeleteView(
+    DeleteView):
+    model = Report
+    template_name = "pdf_generator/report_delete.html"
+    success_url = reverse_lazy("user_reports")
+
+    def get_object(self):
+        return get_object_or_404(Report, pk=self.kwargs['report_id'])

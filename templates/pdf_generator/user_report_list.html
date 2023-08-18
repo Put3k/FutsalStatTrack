@@ -2,7 +2,24 @@
 {% load static %}
 
 {% block content %}
-    {% for report in report_list %}
-        <li>{{ report }}</li>
-    {% endfor %}
+<div class="card bg-dark text-white">
+    <div class="card-header">
+        <h3>Saved Reports</h3>
+    </div>
+    <ol class="list-group list-group-numbered">
+        {% for report in report_list %}
+            <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">{{ report }}</div>
+                League: {{ report.league }}<br>
+                Date: {{ report.generated }}
+            </div>
+            <div class="d-grid gap-2 mx-auto">
+                <button onclick="window.location.href='{{ report.pdf.url }}'" type="button" class="btn btn-outline-success">View</button>
+                <button onclick="window.location.href='{% url 'report_delete' report.pk %}'" type="button" class="btn btn-outline-danger">Delete</button>
+            </div>
+            </li>
+        {% endfor %}
+      </ol>
+</div>
 {% endblock %}
