@@ -23,7 +23,7 @@ class GeneratePdf(View):
     def get(self, request, *args, **kwargs):
         league = League.objects.get(pk=kwargs.get("league_id"))
         players_list = Player.objects.filter(leagues=league).order_by("last_name")
-        date = datetime.date.today().strftime("%d/%m/%Y")
+        date = datetime.date.today().strftime("%Y-%m-%d")
 
         open('templates/temp.html', "w").write(render_to_string('league_pdf.html', {'league':league, 'players_list': players_list, 'date': date}))
 
@@ -37,9 +37,20 @@ class GeneratePdf(View):
 
             with open(temp.name, 'rb') as saved_file:
                 user_id = request.user.id
-                report = Report(league=league, owner=request.user, generated=datetime.date.today())
-                report.pdf.save(f'rf_{report.pk}.pdf', saved_file)
-                report.save()
+
+                # Creation of report.
+                owned_reports_qs = request.user.reports.all()
+
+                #If user already have temporary report, new file is assigned to temporary Report.
+                if owned_reports_qs.filter(temporary=True):
+                    report = owned_reports_qs.filter(temporary=True).first()
+                    report.generated = date
+                    report.pdf.save(f'rf_{report.pk}.pdf', saved_file)
+                
+                #If user have no reports, new report with 'temporary' field set to true is created
+                else:
+                    report = Report(league=league, owner=request.user, generated=datetime.date.today())
+                    report.pdf.save(f'rf_{report.pk}.pdf', saved_file)
             temp.close()
 
         return redirect('pdf_success', report.id)
