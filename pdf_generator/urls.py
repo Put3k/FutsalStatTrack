@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
    
-   #PDF generating view
+    #PDF generating
     path('new/<uuid:league_id>/', views.GeneratePdf.as_view(), name="generate_pdf_report"),
 
     #List of user reports
