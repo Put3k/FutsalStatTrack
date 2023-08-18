@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -36,16 +37,13 @@ class GeneratePdf(View):
 
             with open(temp.name, 'rb') as saved_file:
                 user_id = request.user.id
-                file_uri = Upload.upload_file(saved_file, f"{user_id}/temp.pdf")
+                report = Report(league=league, owner=request.user, generated=datetime.date.today())
+                report.pdf.save(f'rf_{report.pk}.pdf', saved_file)
+                report.save()
             temp.close()
-
-        report = Report(league=league, owner=request.user, generated=datetime.date.today())
-        report.save()
 
         return redirect('pdf_success', report.id)
          
-
-
 
 # View of newly generated Report
 class PdfSuccess(DetailView):
