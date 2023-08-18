@@ -67,6 +67,18 @@ class PdfSuccess(DetailView):
         context = super().get_context_data(**kwargs)
         return context
 
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        if "save-to-cloud" in request.POST:
+            new_report = Report.objects.get(pk=self.kwargs['report_id'])
+            new_report.temporary = False
+            new_report.pk = None
+            new_report.id = None
+            new_report._state.adding = True
+            new_report.save()
+            print(new_report.pk)
+        return redirect('user_reports')
+
     def get_object(self):
         return get_object_or_404(Report, pk=self.kwargs['report_id'])
     
