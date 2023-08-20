@@ -7,7 +7,8 @@ from ..models import Player
 
 @register.simple_tag
 def is_league_owner(user, league):
-    if league.owner is user:
+    print(league.owner == user)
+    if league.owner == user:
         return True
     return False
 

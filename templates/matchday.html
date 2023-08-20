@@ -7,9 +7,11 @@
 {% block content %}
 <div class="card text-bg-dark row mb-3">
     <a style="text-decoration: none" href="{% url 'league_home' league.id %}"><h2 class="text-white">{{ league }}</h2></a>
-    <div class="text-center" style="display: flex; justify-content: space-between ;">
-        <h4>{{ matchday }}</h4><button onclick="location.href='{% url 'matchday_delete' matchday.id %}'" class="btn btn-outline-danger mb-2">Delete Matchday</button>
-    </div>
+    {% if request.user == matchday.league.owner %}
+        <div class="text-center" style="display: flex; justify-content: space-between ;">
+            <h4>{{ matchday }}</h4><button onclick="location.href='{% url 'matchday_delete' matchday.id %}'" class="btn btn-outline-danger mb-2">Delete Matchday</button>
+        </div>
+    {% endif %}
 </div>
 <div class="row">
     <div class="card text-bg-dark col ml">

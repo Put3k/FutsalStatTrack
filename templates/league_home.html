@@ -18,9 +18,9 @@
                 <div class="card-content m-3">
                     {% if request.user == owner %}
                     <a href="{% url 'matchday_create' league.id %}"><button type="button" class="btn btn-outline-success">New Matchday</button></a>
+                    <a href="{% url 'generate_pdf_report' league.id %}"><button type="button" class="btn btn-outline-success">Generate Report</button></a>
                     {% endif %}
                     <a href="{% url 'players_list' league.id %}"><button type="button" class="btn btn-outline-success">Players List</button></a>
-                    <a href="{% url 'generate_pdf_report' league.id %}"><button type="button" class="btn btn-outline-success">Generate Report</button></a>
                 </div>
             </div>
         </div>
