@@ -209,4 +209,4 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, 'credential.json'))
 
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'bucket_django_stat_track'
+GS_BUCKET_NAME = config("GS_BUCKET_NAME")
