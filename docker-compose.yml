@@ -12,6 +12,8 @@ services:
       - db
     environment:
       - "DJANGO_DEBUG=True"
+      - "DJANGO_SECRET_KEY='django-insecure-*7v9&bzm7y^2#f*!6^ff_)&t7g58jwc&%^pw2!fi6sbb(5i=l-'"
+      - "GS_BUCKET_NAME='bucket_django_stat_track'"
   db:
     image: postgres:13
     volumes:
