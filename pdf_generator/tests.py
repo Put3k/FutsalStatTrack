@@ -10,7 +10,7 @@ from stat_track.models import League
 from .models import Report
 
 
-class BookTests(TestCase):
+class ReportTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):

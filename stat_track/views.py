@@ -113,10 +113,6 @@ def create_league(request):
     return render(request, "league_create.html", context)
 
 
-# NOT IN USE
-# def moderator_panel(request):
-#     return HttpResponse("Moderator Panel")
-
 @login_required
 @is_league_member_or_owner
 def player_stats(request, player_id, league_id):
@@ -358,7 +354,7 @@ def edit_matchday(request, matchday_id):
 
         except ValidationError as e:
             for error_message in e:
-                error_str = error_message[1][0]     #hotfix due to printing ValidationError as string
+                error_str = error_message[1][0]
                 messages.error(request, error_str)
 
 
