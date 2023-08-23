@@ -4,7 +4,7 @@ from django.urls import include, path
 
 urlpatterns = [
     # Django admin
-    path('admin/', admin.site.urls),
+    path('not-a-default-admin-site/', admin.site.urls),
 
     # User management
     path("accounts/", include("allauth.urls")),

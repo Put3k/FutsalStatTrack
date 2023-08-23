@@ -9,6 +9,7 @@ old
 requirements_o.txt
 credential.json
 private.txt
+docker-compose-prod.yml
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,django,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,django,python
