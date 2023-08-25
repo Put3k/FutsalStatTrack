@@ -41,24 +41,19 @@ def home(request):
     # leagues counts
     owned_count = user_owned_leagues.count()
     member_count = player_leagues.count()
-
-    if owned_count + member_count == 0:
+    
+    #Manage route depending on user leagues
+    if owned_count == 0 and member_count == 0:
         return redirect("league_create")
+    
+    elif owned_count == 1 and member_count == 0:
+        return redirect("league_home", user_owned_leagues.first().pk)
 
-    # Check if Player owns or play one league
-    if (member_count == 1 and owned_count == 0) or (member_count == 0 and owned_count == 1) or (member_count == 1 and owned_count == 1):
-
-        owned_league = user_owned_leagues.first()
-        player_league = player_leagues.first()
-
-        if (owned_count + member_count != 1) and (owned_league==player_league):
-            return redirect("league_home", owned_league.pk)
-        
-        if owned_league:
-            return redirect("league_home", owned_league.pk)
-
-        if player_league:
-            return redirect("league_home", player_league.pk)
+    elif owned_count == 0 and member_count == 1:
+        return redirect("league_home", player_leagues.first().pk)
+    
+    elif owned_count == 1 and member_count == 1 and user_owned_leagues.first() == player_leagues.first():
+        return redirect("league_home", player_leagues.first().pk)
 
     context = {
         "user_owned_leagues": user_owned_leagues,
