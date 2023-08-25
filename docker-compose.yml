@@ -19,6 +19,7 @@ services:
       - "DJANGO_SECURE_HSTS_PRELOAD=False"
       - "DJANGO_SESSION_COOKIE_SECURE=False"
       - "DJANGO_CSRF_COOKIE_SECURE=False"
+      - "SECRET_KEY=j-KihbM8miE12mr0uaE4KrX2lwjLqnhS5Ba0Tm8O110IDrQzdRE"
       - "GS_BUCKET_NAME='bucket_django_stat_track'"
   db:
     image: postgres:13
