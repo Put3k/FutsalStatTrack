@@ -91,7 +91,6 @@ class InvitationDetail(DetailView):
         accept_url = instance.accept_url
         context["accept_url"] = accept_url 
         return context
-    
-
+        
     def get_object(self, queryset=None):
         return Invitation.objects.get(id=self.kwargs.get('invite_id'))
