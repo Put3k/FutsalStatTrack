@@ -3,6 +3,7 @@ import uuid
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.generic.detail import DetailView
 
 from stat_track.decorators import is_league_owner
@@ -88,7 +89,8 @@ class InvitationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         instance = self.get_object()
-        accept_url = instance.accept_url
+        url = reverse('invitation_accept', kwargs={'league_id': instance.league.pk, 'key': instance.key})
+        accept_url = self.request.build_absolute_uri(url)
         context["accept_url"] = accept_url 
         return context
         
