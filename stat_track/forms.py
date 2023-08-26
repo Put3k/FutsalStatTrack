@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm, TextInput
+from django.forms import CheckboxInput, ModelForm, TextInput
 
 from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
 
@@ -8,7 +8,7 @@ class DateInput(forms.DateInput):
     input_type = "date"
 
 class LeagueForm(forms.ModelForm):
-
+    add_owner = forms.BooleanField(label="Include Owner in League")
     class Meta:
         model = League
         fields = [
@@ -26,7 +26,13 @@ class LeagueForm(forms.ModelForm):
             "start_date": DateInput(attrs={
                 "class": "form-control w-25 mb-3",
             }),
-        }
+            "add_owner": CheckboxInput(attrs={
+                'class':"form-check-input",
+                'type':"checkbox",
+                'value':"",
+                'id':"flexCheckDefault",
+            })}
+    
 
 class MatchDayForm(forms.ModelForm):
     class Meta:

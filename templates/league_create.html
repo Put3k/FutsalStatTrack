@@ -8,13 +8,16 @@
     <h2>Create new league</h2>
     <form action="{% url 'league_create' %}" method=POST>
         {% csrf_token %}
-        {% for item in form %}
-        {{ item.label }}  {{ item }}
-        {% if item.help_text %}
-            {{ item.help_text|safe }}
-        {% endif %}
-        {% endfor %}
-        <button type="submit" class="btn btn-primary mb-3">Create League</button>
+        {{ form.name.label }}
+        {{ form.name }}
+
+        {{ form.start_date.label }}
+        {{ form.start_date }}
+
+        {{ form.add_owner }}
+        {{ form.add_owner.label }}
+        <br>
+        <button type="submit" class="btn btn-primary mt-3">Create League</button>
     </form>
 </div>
 {% endblock %}

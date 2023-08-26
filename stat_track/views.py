@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 from rest_framework import generics
+from django.contrib.auth import get_user_model
 
 from .decorators import is_league_member_or_owner, is_league_owner
 from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm, StatForm
@@ -95,6 +96,11 @@ def create_league(request):
             league.save()
             league_name = league.name
             league_id = league.id
+
+            if form.cleaned_data.get("add_owner"):
+                player = request.user.players.first()
+                player.leagues.add(league)
+
             messages.success(request, f"{league_name} created successfully.")
             return redirect(f'/league/{league_id}/')
 
