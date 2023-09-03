@@ -1,13 +1,13 @@
-from rest_framework import serializers, status
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
-from rest_framework.exceptions import APIException
-from django.http import JsonResponse
-from django.db import transaction
-
-from .models import MatchDay, MatchDayTicket, Match, Player, Stat
-
 import datetime
+
+from django.db import transaction
+from django.http import JsonResponse
+from rest_framework import serializers, status
+from rest_framework.exceptions import APIException
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
+from .models import Match, MatchDay, MatchDayTicket, Player, Stat
 
 
 class MatchDaySerializer(serializers.ModelSerializer):
@@ -102,7 +102,7 @@ class MatchSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         matchday_id = self.initial_data.get('matchday')
-        matchday = MatchDay.objects.get(pk=matchday_id)
+        matchday = MatchDay.objects.get(id=matchday_id)
         if not matchday:
             raise serializers.ValidationError({'matchday':f'Matchday {matchday_id} does not exists'})
         
@@ -126,7 +126,7 @@ class MatchSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         matchday_id = self.initial_data.get('matchday')
-        matchday = MatchDay.objects.get(pk=matchday_id)
+        matchday = MatchDay.objects.get(id=matchday_id)
 
         players = matchday.players
         goal_scorers = self.initial_data.get('goal_scorers')
@@ -201,12 +201,13 @@ class PlayerSerializer(serializers.ModelSerializer):
     edit_url = serializers.SerializerMethodField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
         view_name='player-detail',
-        lookup_field='pk'
+        lookup_field='id'
         )
+
     class Meta:
         model = Player
         fields = [
-            'pk',
+            'id',
             'url',
             'edit_url',
             'first_name',
@@ -221,7 +222,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
         if request is None:
             return None
-        return reverse("player-edit", kwargs={"pk":obj.pk}, request=request)
+        return reverse("player-edit", kwargs={"id":obj.id}, request=request)
 
     def get_matches_played(self, obj):
         if not hasattr(obj, 'id'):

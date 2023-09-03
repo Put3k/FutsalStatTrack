@@ -2,12 +2,14 @@ import json
 
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
+from rest_framework import generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import generics, mixins
 
-from stat_track.models import MatchDay, MatchDayTicket, Match, Player
-from stat_track.serializers import MatchDaySerializer, MatchSerializer, PlayerSerializer
+from stat_track.models import Match, MatchDay, MatchDayTicket, Player
+from stat_track.serializers import (MatchDaySerializer, MatchSerializer,
+                                    PlayerSerializer)
+
 from .mixins import StaffEditorPermissionMixin
 
 
@@ -50,7 +52,7 @@ class PlayerUpdateAPIView(
     generics.UpdateAPIView):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -63,7 +65,7 @@ class PlayerDestroyAPIView(
     generics.DestroyAPIView):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
@@ -97,7 +99,7 @@ class MatchUpdateAPIView(
     generics.UpdateAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -110,7 +112,7 @@ class MatchDestroyAPIView(
     generics.DestroyAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
@@ -127,7 +129,7 @@ class MatchDayCreateAPIView(
     generics.CreateAPIView):
     queryset = MatchDay.objects.all()
     serializer_class = MatchDaySerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
 matchday_create_view = MatchDayCreateAPIView.as_view()
 
@@ -137,7 +139,7 @@ class MatchDayListAPIView(
     generics.ListCreateAPIView):
     queryset = MatchDay.objects.all()
     serializer_class = MatchDaySerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
 matchday_list_view = MatchDayListAPIView.as_view()
 
@@ -156,7 +158,7 @@ class MatchDayUpdateAPIView(
     generics.UpdateAPIView):
     queryset = MatchDay.objects.all()
     serializer_class = MatchDaySerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -169,7 +171,7 @@ class MatchDayDestroyAPIView(
     generics.DestroyAPIView):
     queryset = MatchDay.objects.all()
     serializer_class = MatchDaySerializer
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)

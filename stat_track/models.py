@@ -54,7 +54,7 @@ class Player(models.Model):
         editable=False)
     first_name = models.CharField(max_length = 16)
     last_name = models.CharField(max_length = 16)
-    user = models.ForeignKey(user_model, null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(user_model, null=True, blank=True, related_name='players', on_delete=models.SET_NULL)
     leagues = models.ManyToManyField(League, blank=True)
 
     def __str__(self):
