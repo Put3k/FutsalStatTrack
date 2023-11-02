@@ -10,7 +10,7 @@ requirements_o.txt
 credential.json
 private.txt
 docker-compose-prod.yml
-credential.json
+credentials.json
 *.pdf
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,django,python
