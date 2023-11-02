@@ -10,17 +10,6 @@ services:
       - 8000:8000
     depends_on:
       - db
-    environment:
-      - "DJANGO_DEBUG=True"
-      - "DJANGO_SECRET_KEY=django-insecure-*7v9&bzm7y^2#f*!6^ff_)&t7g58jwc&%^pw2!fi6sbb(5i=l-"
-      - "DJANGO_SECURE_SSL_REDIRECT=False"
-      - "DJANGO_SECURE_HSTS_SECONDS=0"
-      - "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False"
-      - "DJANGO_SECURE_HSTS_PRELOAD=False"
-      - "DJANGO_SESSION_COOKIE_SECURE=False"
-      - "DJANGO_CSRF_COOKIE_SECURE=False"
-      - "SECRET_KEY=j-KihbM8miE12mr0uaE4KrX2lwjLqnhS5Ba0Tm8O110IDrQzdRE"
-      - "GS_BUCKET_NAME='bucket_django_stat_track'"
   db:
     image: postgres:13
     volumes:
