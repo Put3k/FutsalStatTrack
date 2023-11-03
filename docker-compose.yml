@@ -2,8 +2,10 @@ version: "3.9"
 
 services:
   web:
+    container_name: web
     build: .
-    command: gunicorn backend.wsgi -b 0.0.0.0:8000
+#    entrypoint: /code/docker_files/database_reset.sh
+    command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
@@ -12,10 +14,15 @@ services:
       - db
   db:
     image: postgres:13
+    container_name: db
+    environment:
+      - "POSTGRES_USER=test"
+      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    user: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
 
 volumes:
   postgres_data:
