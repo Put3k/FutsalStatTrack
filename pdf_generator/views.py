@@ -74,7 +74,6 @@ class PdfSuccess(LoginRequiredMixin, DetailView):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         if "save-to-cloud" in request.POST:
             # Check if user have empty slots for saving report
             if len(request.user.reports.all()) < 4:

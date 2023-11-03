@@ -347,7 +347,6 @@ def edit_matchday(request, matchday_id):
                         stat_counter += 1
                         goals = value
                         player = Player.objects.get(pk=key)
-                        print(player)
                         stat = Stat(player=player, match=match, goals=goals, league=league)
                         
                         stat.full_clean()  # Validate stat data
