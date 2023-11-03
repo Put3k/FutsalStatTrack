@@ -524,33 +524,6 @@ class Stat(models.Model):
         else:
             return True
 
-    #NOT IN USE DUE TO TEAM_GOALS SUM UP AS GOALS SCORED BY PLAYERS
-    # @property
-    # def goals_is_valid(self):
-    #     """Chceck if goals scored by player and other teammates sum up to goals declared in Match."""
-
-    #     #set value of goals scored by team
-    #     if self.get_team == self.match.team_home:
-    #         goals_scored_by_team = self.match.home_goals
-    #     else:
-    #         goals_scored_by_team = self.match.away_goals
-
-    #     matchday = self.match.matchday
-    #     teammates_queryset = MatchDayTicket.objects.filter(matchday = matchday, team = self.get_team).values('player_id')
-    #     teammates = [Player.objects.get(pk=value['player_id']) for value in teammates_queryset]
-    #     goals_scored_by_teammates = 0
-
-    #     for player in teammates:
-    #         player_goals = player.get_player_goals_in_match(match = self.match)
-    #         if player_goals != None:
-    #             goals_scored_by_teammates += player_goals
-
-    #     if self.goals > goals_scored_by_team - goals_scored_by_teammates:
-    #         return False
-    #     else:
-    #         return True
-
-
     @property
     def team_is_valid(self):
         """Check if team assigned to player in stat appears in match."""
@@ -579,6 +552,26 @@ class Stat(models.Model):
             if not self.team_is_valid:
                 raise ValidationError(f'Team {self.get_team} does not appear in this match.', code="invalid_team")
 
+
+class PlayerStatSum(models.Model):
+    """Model which stores summary of stats to optimize performance"""
+
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
+    goals = models.PositiveIntegerField(default=0)
+    match_count = models.PositiveIntegerField(default=0)
+    matchday_count = models.PositiveIntegerField(default=0)
+    points = models.PositiveIntegerField(default=0)
+    wins = models.PositiveIntegerField(default=0)
+    loses = models.PositiveIntegerField(default=0)
+    draws = models.PositiveIntegerField(default=0)
+
+    def __repr__(self):
+        return f'Stat summary: {self.player} - {self.league}'
 
 # class JoinRequest(models.Model):
 #     """Request to join league as a player."""
@@ -646,3 +639,9 @@ def create_and_set_player(sender, instance, created, **kwargs):
         user = instance
         player = Player(first_name=user.first_name, last_name=user.last_name, user=user)
         player.save()
+
+# @receiver(post_save, sender=Stat)
+# def update_player_stat_sum(sender, instance, created, **kwargs):
+#     if created:
+#         player = instance.player
+#         if
