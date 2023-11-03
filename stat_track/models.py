@@ -225,9 +225,6 @@ class Player(models.Model):
 
     @property
     def get_total_points(self):
-        stats_queryset = Stat.objects.filter(player=self)
-        goals_queryset = Stat.objects.filter(player=self).values_list('goals')
-
         wins = self.get_player_wins
         draws = self.get_player_draws
         goals = self.get_player_goals
@@ -235,9 +232,6 @@ class Player(models.Model):
         return score
 
     def get_total_points_in_league(self, league):
-        stats_queryset = Stat.objects.filter(player=self, league=league)
-        goals_queryset = Stat.objects.filter(player=self, league=league).values_list('goals')
-
         wins = self.get_player_wins_in_league(league)
         draws = self.get_player_draws_in_league(league)
         goals = self.get_player_goals_in_league(league)
@@ -467,7 +461,7 @@ class Match(models.Model):
             raise ValidationError("Goals scored cannot be negative.")
 
     def __str__(self):
-        return f"{self.match_in_matchday}-{self.matchday.date.strftime('%d-%m-%Y')}-{self.team_home}-{self.team_away}"
+        return f"{self.matchday.date.strftime('%Y-%m-%d')}-{self.match_in_matchday}-{self.team_home}-{self.team_away}"
 
 
     class Meta:
@@ -543,10 +537,6 @@ class Stat(models.Model):
         if not self.player_is_valid:
             raise ValidationError(f'Stat for {self.player} in this match already exists.', code="invalid_player")
 
-        #Goals validation
-        # if not self.goals_is_valid:
-        #     raise ValidationError(f'Sum of the goals of the individual players is not equal the declared match goals - {self.player}', code="invalid_goal")
-
         if not admin.site.is_registered(self.__class__):
         #Team exists in match validation
             if not self.team_is_valid:
@@ -570,7 +560,7 @@ class PlayerStatSum(models.Model):
     loses = models.PositiveIntegerField(default=0)
     draws = models.PositiveIntegerField(default=0)
 
-    def __repr__(self):
+    def __str__(self):
         return f'Stat summary: {self.player} - {self.league}'
 
 # class JoinRequest(models.Model):
@@ -639,9 +629,3 @@ def create_and_set_player(sender, instance, created, **kwargs):
         user = instance
         player = Player(first_name=user.first_name, last_name=user.last_name, user=user)
         player.save()
-
-# @receiver(post_save, sender=Stat)
-# def update_player_stat_sum(sender, instance, created, **kwargs):
-#     if created:
-#         player = instance.player
-#         if
