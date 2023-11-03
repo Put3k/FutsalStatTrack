@@ -4,7 +4,7 @@ services:
   web:
     container_name: web
     build: .
-#    entrypoint: /code/docker_files/database_reset.sh
+    entrypoint: docker_files/routine.sh
     command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
@@ -16,10 +16,9 @@ services:
     image: postgres:13
     container_name: db
     environment:
-      - "POSTGRES_USER=test"
-      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=postgres"
       - "POSTGRES_HOST_AUTH_METHOD=trust"
-    user: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
