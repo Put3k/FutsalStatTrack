@@ -1,8 +1,3 @@
-# fly.toml app configuration file generated for futsal-stat-trackk on 2023-11-04T17:08:48+01:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = "futsal-stat-track"
 primary_region = "ams"
 console_command = "/code/manage.py shell"
