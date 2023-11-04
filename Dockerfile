@@ -22,6 +22,9 @@ RUN set -ex && \
     rm -rf /root/.cache/
 COPY . /code
 
+ENV DJANGO_SECRET_KEY "non-secret-key-for-building-purposes"
+ENV GS_BUCKET_NAME "non-secret-bucket-name-for-building-purposes"
+
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
