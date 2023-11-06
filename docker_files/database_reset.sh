@@ -4,16 +4,7 @@ set -e
 echo -e "\n>>> Resetting the database"
 ./manage.py reset_db --close-sessions --noinput
 
-
-#DUMP_FILE="~/PycharmProjects/FutsalStatTrack/docker_files/db_dumps/db.dump"
-#pg_restore \
-#    --clean \
-#    --dbname postgres \
-#    --host localhost \
-#    --port 5432 \
-#    --username postgres \
-#    --no-owner \
-#    $DUMP_FILE
+echo -e "\n>>> Restoring database from dump file"
 pg_restore -U postgres -v -d postgres < ~/PycharmProjects/FutsalStatTrack/docker_files/db_dumps/db.dump
 
 echo -e "\n>>> Running migrations"
