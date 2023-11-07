@@ -19,7 +19,7 @@ echo -e "\n>>> Creating new superuser 'admin'"
 echo -e "\n>>> Setting superuser 'admin' password to 12345"
 ./manage.py shell_plus --quiet-load -c "
 u=User.objects.get(username='admin')
-u.set_password('12345')
+u.set_password('testpass123')
 u.save()
 "
 
