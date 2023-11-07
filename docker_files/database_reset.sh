@@ -4,17 +4,8 @@ set -e
 echo -e "\n>>> Resetting the database"
 ./manage.py reset_db --close-sessions --noinput
 
-
-#DUMP_FILE="~/PycharmProjects/FutsalStatTrack/docker_files/db_dumps/db.dump"
-#pg_restore \
-#    --clean \
-#    --dbname postgres \
-#    --host localhost \
-#    --port 5432 \
-#    --username postgres \
-#    --no-owner \
-#    $DUMP_FILE
-pg_restore -U postgres -v -d postgres < ~/PycharmProjects/FutsalStatTrack/docker_files/db_dumps/db.dump
+echo -e "\n>>> Restoring database from dump file"
+cat ./docker_files/db_dumps/db_dump.sql | docker exec -i db psql -U postgres
 
 echo -e "\n>>> Running migrations"
 ./manage.py migrate
@@ -28,7 +19,7 @@ echo -e "\n>>> Creating new superuser 'admin'"
 echo -e "\n>>> Setting superuser 'admin' password to 12345"
 ./manage.py shell_plus --quiet-load -c "
 u=User.objects.get(username='admin')
-u.set_password('12345')
+u.set_password('testpass123')
 u.save()
 "
 
