@@ -13,7 +13,7 @@ fly proxy 15432:5432 --app <your_app_name-db>
 
 in new terminal window:
 ```
-pg_dump -p 15432 -h localhost -U postgres -c -d <your_app_database_name> -f db_backup
+pg_dump -p 15432 -h localhost -U postgres -c -d <your_app_database_name> -f db_dump.sql
 ```
 
 Enter database password (Operator Passowrd from fly PostgreSQL db application). You can access it by:

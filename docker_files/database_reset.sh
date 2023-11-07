@@ -5,7 +5,7 @@ echo -e "\n>>> Resetting the database"
 ./manage.py reset_db --close-sessions --noinput
 
 echo -e "\n>>> Restoring database from dump file"
-pg_restore -U postgres -v -d postgres < ~/PycharmProjects/FutsalStatTrack/docker_files/db_dumps/db.dump
+cat ./docker_files/db_dumps/db_dump.sql | docker exec -i db psql -U postgres
 
 echo -e "\n>>> Running migrations"
 ./manage.py migrate
