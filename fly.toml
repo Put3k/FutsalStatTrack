@@ -3,7 +3,7 @@ primary_region = "ams"
 console_command = "/code/manage.py shell"
 
 [build]
-  dockerfile = "/code/docker_files/Dockerfile"
+  dockerfile = "/code/docker_files/Dockerfile.prod"
   ignorefile = "/code/docker_files/.dockerignore"
 
 [deploy]
