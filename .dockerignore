@@ -7,7 +7,7 @@
 *.sql.gz
 .cache
 .project
-.idea
+../.idea
 .pydevproject
 .idea/workspace.xml
 .DS_Store
@@ -26,4 +26,3 @@ src/node_modules
 web/media
 web/static/CACHE
 stats
-Dockerfile
