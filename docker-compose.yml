@@ -3,8 +3,12 @@ version: "3.9"
 services:
   web:
     container_name: web
+    environment:
+      - "DJANGO_SUPERUSER_USERNAME=admin"
+      - "DJANGO_SUPERUSER_EMAIL=admin@email.com"
+      - "DJANGO_SUPERUSER_PASSWORD=testpass123"
     build: .
-    entrypoint: /code/docker_files/routine.sh
+    entrypoint: /code/docker_files/entrypoint.sh
     volumes:
       - .:/code
     ports:
