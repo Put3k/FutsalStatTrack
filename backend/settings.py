@@ -220,6 +220,9 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 
 
 # Google Cloude Storage
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, 'credentials.json'))
+try:
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, 'credentials.json'))
+except:
+    GS_CREDENTIALS = None
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = env("GS_BUCKET_NAME")
+GS_BUCKET_NAME = env("GS_BUCKET_NAME", default="non-secret-bucket-name-for-building-purposes")
