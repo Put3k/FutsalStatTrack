@@ -12,6 +12,7 @@ class LeagueAdmin(admin.ModelAdmin):
 class MatchDayAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__', 'match_counter')
     readonly_fields = ('match_counter', )
+    list_filter = ('league',)
 
 
 class MatchDayTicketAdmin(admin.ModelAdmin):
@@ -40,7 +41,7 @@ class StatAdmin(admin.ModelAdmin):
 
 class PlayerStatSumAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id')
-    readonly_fields = ('goals', 'match_count', 'matchday_count', 'points', 'wins', 'loses', 'draws')
+    readonly_fields = ('player', 'league', 'goals', 'match_count', 'matchday_count', 'points', 'wins', 'loses', 'draws')
 
 
 admin.site.register(League, LeagueAdmin)
