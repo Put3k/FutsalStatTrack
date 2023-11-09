@@ -33,7 +33,10 @@ def home(request):
         return render(request, "home.html", context)
 
     user = request.user
-    player = Player.objects.get(user=user)
+    try:
+        player = Player.objects.get(user=user)
+    except:
+        raise ValueError(f"User {user} have no Player assigned.")
 
     # leagues querysets
     user_owned_leagues = League.objects.filter(owner=user)
