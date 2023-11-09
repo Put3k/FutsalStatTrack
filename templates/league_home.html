@@ -53,15 +53,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for player in players_list %}
+                        {% for item in players_stat_sum_list %}
                         <tr>
                             <td>{{ forloop.counter }}</th>
-                            <td><a style="text-decoration: none" href='player/{{ player.id }}'>{{ player }}</a></td>
-                            <td>{{ player.get_player_goals }}</td>
-                            <td>{{ player.get_player_matches_played }}</td>
-                            <td>{{ player.get_player_wins }}</td>
-                            <td>{{ player.get_total_points }}</td>
-                            <td>{{ player.get_player_win_ratio }}</td>
+                            <td><a style="text-decoration: none" href='player/{{ item.player }}'>{{ item.player__last_name}} {{ item.player__first_name }}</a></td>
+                            <td>{{ item.goals }}</td>
+                            <td>{{ item.match_count }}</td>
+                            <td>{{ item.wins }}</td>
+                            <td>{{ item.points }}</td>
+                            <td>{{ item.winrate }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

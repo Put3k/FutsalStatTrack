@@ -563,6 +563,15 @@ class PlayerStatSum(models.Model):
     def __str__(self):
         return f'Stat summary: {self.player} - {self.league}'
 
+    @property
+    def winrate(self):
+        if not self.match_count:
+            winrate = 50
+        else:
+            winrate = round(((self.wins + (self.draws / 3)) / self.match_count) * 100)
+
+        return f"{winrate}%"
+
 # class JoinRequest(models.Model):
 #     """Request to join league as a player."""
 
