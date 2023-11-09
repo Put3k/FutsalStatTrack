@@ -5,7 +5,7 @@ echo "Apply database migrations"
 python /code/manage.py migrate
 
 # Create superuser
-printenv
+echo "Create superuser"
 export DJANGO_SUPERUSER_USERNAME
 export DJANGO_SUPERUSER_EMAIL
 export DJANGO_SUPERUSER_PASSWORD
