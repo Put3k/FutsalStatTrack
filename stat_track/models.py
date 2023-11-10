@@ -563,39 +563,6 @@ class PlayerStatSum(models.Model):
     def __str__(self):
         return f'Stat summary: {self.player} - {self.league}'
 
-    @property
-    def winrate(self):
-        if not self.match_count:
-            winrate = 50
-        else:
-            winrate = round(((self.wins + (self.draws / 3)) / self.match_count) * 100)
-
-        return f"{winrate}%"
-
-# class JoinRequest(models.Model):
-#     """Request to join league as a player."""
-
-
-#     class JoinRequestStatusChoices(models.TextChoices):
-#         PENDING = "PENDING", "Pending"
-#         APPROVED = "APPROVED", "Approved"
-#         REJECTED = "REJECTED", "Rejected"
-
-#     league = models.ForeignKey(
-#         to=League, related_name="join_requests", on_delete=models.CASCADE
-#     )
-#     player = models.ForeignKey(
-#         to=Player, related_name="join_requests", on_delete=models.CASCADE
-#     )
-#     status = models.CharField(
-#         max_length=15,
-#         choices=JoinRequestStatusChoices.choices,
-#         default=JoinRequestStatusChoices.PENDING,
-#     )
-
-
-
-
 
 @receiver(post_save, sender=Match)
 def increment_match_counter(sender, instance, created, **kwargs):

@@ -131,14 +131,13 @@ def player_stats(request, player_id, league_id):
 def players_list(request, league_id):
     league = League.objects.get(pk=league_id)
 
-    players_stat_sum_list = PlayerStatSum.objects.filter(league=league).annotate(
+    players_stat_sum_list = PlayerStatSum.objects.filter(league=league).select_related('player').annotate(
         winrate=winrate_expression,
         goals_per_match=goals_per_match_expression,
-        points_per_match=points_per_match_expression
-    ).values()
+        points_per_match=points_per_match_expression,
+    )
 
-    print(*players_stat_sum_list, sep="\n")
-
+    print(players_stat_sum_list[0].player.first_name)
     context = {
         "league": league,
         "players_stats_sum_list": players_stat_sum_list,
