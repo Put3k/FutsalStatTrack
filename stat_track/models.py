@@ -605,3 +605,16 @@ def create_and_set_player(sender, instance, created, **kwargs):
         user = instance
         player = Player(first_name=user.first_name, last_name=user.last_name, user=user)
         player.save()
+
+
+@receiver(post_save, sender=Stat):
+def add_stat_to_player_stat_sum(sender, instance, created, **kwargs):
+    """
+    Add statistics to PlayerStatSum
+    """
+
+    player = instance.player
+    league = instance.league
+
+    player_stat_sum = PlayerStatSum.objects.get(player=player, league=league)
+
