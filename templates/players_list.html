@@ -60,12 +60,12 @@
                             </svg>
                         {% else %}
                             {% if stat_sum.player.get_invitation.is_active %}
-                                <form action={% url 'invitation_detail' league.id player.get_invitation %}>
-                                    <button type="submit" class="btn btn-success">Invite</button>
+                                <form action={% url 'invitation_detail' league.id stat_sum.player.get_invitation %}>
+                                    <button type="submit" class="btn btn-danger">Invite</button>
                                 </form>
                             {% else %}
                                 
-                                    <form action={% url 'invitation_create' league.id player.id %}>
+                                    <form action={% url 'invitation_create' league.id stat_sum.player.id %}>
                                         <button type="submit" class="btn btn-success">Invite</button>
                                     </form>
                                 

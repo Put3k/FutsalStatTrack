@@ -137,7 +137,6 @@ def players_list(request, league_id):
         points_per_match=points_per_match_expression,
     )
 
-    print(players_stat_sum_list[0].player.first_name)
     context = {
         "league": league,
         "players_stats_sum_list": players_stat_sum_list,
