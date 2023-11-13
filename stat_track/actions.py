@@ -32,5 +32,3 @@ def summarize_player_stats(modeladmin, request, queryset):
                 player_stat_sum.loses = sum(1 for stat in player.stat_set.filter(league=league) if stat.win is False)
                 player_stat_sum.points = 3 * player_stat_sum.wins + player_stat_sum.draws + player_stat_sum.goals * 0.5
                 player_stat_sum.save()
-
-        # Populate existing PlayerStatSum instances

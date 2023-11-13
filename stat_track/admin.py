@@ -36,12 +36,14 @@ class PlayerAdmin(admin.ModelAdmin):
 
 class StatAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id', 'league')
-    list_filter = ('player', 'league')
+    readonly_fields = ('player', 'match', 'league', 'goals')
+    list_filter = ('league', 'player')
 
 
 class PlayerStatSumAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id')
     readonly_fields = ('player', 'league', 'goals', 'match_count', 'matchday_count', 'points', 'wins', 'loses', 'draws')
+    list_filter = ('league', 'player')
 
 
 admin.site.register(League, LeagueAdmin)

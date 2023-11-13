@@ -1,16 +1,17 @@
 import uuid
-from datetime import date, datetime, time
+from datetime import datetime
 
-from django import template
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import pre_delete, post_delete, post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+
+from .utils import get_player_stat_sum
 
 TEAM_CHOICES = (
     ("blue", "blue"),
@@ -578,6 +579,7 @@ def increment_match_counter(sender, instance, created, **kwargs):
         instance.match_in_matchday = matchday.match_counter
         instance.save()
 
+
 @receiver(post_delete, sender=Match)
 def decrement_match_counter(sender, instance, **kwargs):
     """
@@ -596,6 +598,7 @@ def decrement_match_counter(sender, instance, **kwargs):
         # Decrement match_in_matchday in all found records.
         matches_to_decrement.update(match_in_matchday=models.F('match_in_matchday') - 1)
 
+
 @receiver(post_save, sender=User)  
 def create_and_set_player(sender, instance, created, **kwargs):
     """
@@ -607,14 +610,64 @@ def create_and_set_player(sender, instance, created, **kwargs):
         player.save()
 
 
-@receiver(post_save, sender=Stat):
+@receiver(post_save, sender=Stat)
 def add_stat_to_player_stat_sum(sender, instance, created, **kwargs):
     """
     Add statistics to PlayerStatSum
     """
 
-    player = instance.player
-    league = instance.league
+    if created:
+        player_stat_sum = get_player_stat_sum(instance.player, instance.league)
 
-    player_stat_sum = PlayerStatSum.objects.get(player=player, league=league)
+        player_stat_sum.goals += instance.goals
+        player_stat_sum.match_count += 1
 
+        if instance.win:
+            player_stat_sum.wins += 1
+            player_stat_sum.points += 3 + instance.goals * 0.5
+        elif instance.win == "Draw":
+            player_stat_sum.draws += 1
+            player_stat_sum.points += 1 + instance.goals * 0.5
+        else:
+            player_stat_sum.loses += 1
+            player_stat_sum.points += instance.goals * 0.5
+
+        player_stat_sum.save()
+
+
+@receiver(pre_delete, sender=Stat)
+def decrement_stat_from_player_stat_sum(sender, instance, using, **kwargs):
+    player_stat_sum = get_player_stat_sum(instance.player, instance.league)
+
+    player_stat_sum.goals -= instance.goals
+    player_stat_sum.match_count -= 1
+
+    if instance.win:
+        player_stat_sum.wins -= 1
+        player_stat_sum.points -= 3 + instance.goals * 0.5
+    elif instance.win =="Draw":
+        player_stat_sum.draws -= 1
+        player_stat_sum.points -= 1 + instance.goals * 0.5
+    else:
+        player_stat_sum.loses -= 1
+        player_stat_sum.points -= instance.goals * 0.5
+
+    player_stat_sum.save()
+
+
+@receiver(post_save, sender=MatchDayTicket)
+def add_matchday_count_to_player_stat_sum(sender, instance, created, **kwargs):
+
+    if created:
+        player_stat_sum = get_player_stat_sum(instance.player, instance.matchday.league)
+
+        player_stat_sum.matchday_count += 1
+        player_stat_sum.save()
+
+
+@receiver(pre_delete, sender=MatchDayTicket)
+def decrement_matchday_count_from_player_stat_sum(sender, instance, using, **kwargs):
+    player_stat_sum = get_player_stat_sum(instance.player, instance.matchday.league)
+
+    player_stat_sum.matchday_count -= 1
+    player_stat_sum.save()
