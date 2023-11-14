@@ -3,8 +3,8 @@ primary_region = "ams"
 console_command = "/code/manage.py shell"
 
 [build]
-  dockerfile = "/code/docker_files/Dockerfile.prod"
-  ignorefile = "/code/docker_files/.dockerignore"
+  dockerfile = "/docker_files/Dockerfile.prod"
+  ignorefile = "/docker_files/.dockerignore"
 
 [deploy]
   release_command = "python manage.py migrate"
