@@ -1,23 +1,15 @@
 import datetime
-import json
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.forms import formset_factory
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
-from django.urls import reverse
-from django.views.generic import TemplateView, View
-from rest_framework import generics
-from django.contrib.auth import get_user_model
 
 from .decorators import is_league_member_or_owner, is_league_owner
-from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm, StatForm
-from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat
-from .serializers import PlayerSerializer
+from .forms import LeagueForm, MatchCreator, MatchDayForm, PlayerForm
+from .models import League, Match, MatchDay, MatchDayTicket, Player, Stat, PlayerStatSum
+from .expressions import winrate_expression, goals_per_match_expression, points_per_match_expression
 
 
 def home(request):
@@ -75,12 +67,22 @@ def league_home(request, league_id):
     latest_match_day_list = MatchDay.objects.filter(league=league).order_by("-date")[:6]
 
     #top 5 scorers list
-    players_list = Player.objects.filter(leagues=league)
-    players_list = sorted(players_list, key=lambda x: x.get_player_goals_in_league(league), reverse=True)[:5]
+    players_stat_sum_qs = PlayerStatSum.objects.filter(league=league).values(
+        'player', 'player__first_name', 'player__last_name', 'goals', 'match_count',
+        'wins', 'points', 'draws').order_by('-goals')[:5]
+
+    for item in players_stat_sum_qs:
+        if item['match_count'] == 0:
+            winrate = 50
+        else:
+            winrate = round(((item['wins'] + (item['draws'] / 3)) / item['match_count']) * 100)
+
+        item['winrate'] = f"{winrate}%"
+
 
     context = {
         "latest_match_day_list": latest_match_day_list,
-        "players_list": players_list,
+        "players_stat_sum_list": players_stat_sum_qs,
         "league": league,
         "owner": owner
         }
@@ -128,11 +130,16 @@ def player_stats(request, player_id, league_id):
 @is_league_member_or_owner
 def players_list(request, league_id):
     league = League.objects.get(pk=league_id)
-    players_list = Player.objects.filter(leagues=league).order_by('last_name')
-    
+
+    players_stat_sum_list = PlayerStatSum.objects.filter(league=league).select_related('player').annotate(
+        winrate=winrate_expression,
+        goals_per_match=goals_per_match_expression,
+        points_per_match=points_per_match_expression,
+    )
+
     context = {
         "league": league,
-        "players_list": players_list,
+        "players_stats_sum_list": players_stat_sum_list,
     }
 
     return render(request, "players_list.html", context)
@@ -159,9 +166,6 @@ def matchday(request, matchday_id):
             team_orange.append(ticket.player)
         elif ticket.team == "colors":
             team_colors.append(ticket.player)
-
-
-    # Packing teams stats as list
 
     blue_stats = []
     orange_stats = []
@@ -350,7 +354,6 @@ def edit_matchday(request, matchday_id):
                         stat_counter += 1
                         goals = value
                         player = Player.objects.get(pk=key)
-                        print(player)
                         stat = Stat(player=player, match=match, goals=goals, league=league)
                         
                         stat.full_clean()  # Validate stat data

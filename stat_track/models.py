@@ -1,16 +1,17 @@
 import uuid
-from datetime import date, datetime, time
+from datetime import datetime
 
-from django import template
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import pre_delete, post_delete, post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+
+from .utils import get_player_stat_sum
 
 TEAM_CHOICES = (
     ("blue", "blue"),
@@ -225,9 +226,6 @@ class Player(models.Model):
 
     @property
     def get_total_points(self):
-        stats_queryset = Stat.objects.filter(player=self)
-        goals_queryset = Stat.objects.filter(player=self).values_list('goals')
-
         wins = self.get_player_wins
         draws = self.get_player_draws
         goals = self.get_player_goals
@@ -235,9 +233,6 @@ class Player(models.Model):
         return score
 
     def get_total_points_in_league(self, league):
-        stats_queryset = Stat.objects.filter(player=self, league=league)
-        goals_queryset = Stat.objects.filter(player=self, league=league).values_list('goals')
-
         wins = self.get_player_wins_in_league(league)
         draws = self.get_player_draws_in_league(league)
         goals = self.get_player_goals_in_league(league)
@@ -467,7 +462,7 @@ class Match(models.Model):
             raise ValidationError("Goals scored cannot be negative.")
 
     def __str__(self):
-        return f"{self.match_in_matchday}-{self.matchday.date.strftime('%d-%m-%Y')}-{self.team_home}-{self.team_away}"
+        return f"{self.matchday.date.strftime('%Y-%m-%d')}-{self.match_in_matchday}-{self.team_home}-{self.team_away}"
 
 
     class Meta:
@@ -524,33 +519,6 @@ class Stat(models.Model):
         else:
             return True
 
-    #NOT IN USE DUE TO TEAM_GOALS SUM UP AS GOALS SCORED BY PLAYERS
-    # @property
-    # def goals_is_valid(self):
-    #     """Chceck if goals scored by player and other teammates sum up to goals declared in Match."""
-
-    #     #set value of goals scored by team
-    #     if self.get_team == self.match.team_home:
-    #         goals_scored_by_team = self.match.home_goals
-    #     else:
-    #         goals_scored_by_team = self.match.away_goals
-
-    #     matchday = self.match.matchday
-    #     teammates_queryset = MatchDayTicket.objects.filter(matchday = matchday, team = self.get_team).values('player_id')
-    #     teammates = [Player.objects.get(pk=value['player_id']) for value in teammates_queryset]
-    #     goals_scored_by_teammates = 0
-
-    #     for player in teammates:
-    #         player_goals = player.get_player_goals_in_match(match = self.match)
-    #         if player_goals != None:
-    #             goals_scored_by_teammates += player_goals
-
-    #     if self.goals > goals_scored_by_team - goals_scored_by_teammates:
-    #         return False
-    #     else:
-    #         return True
-
-
     @property
     def team_is_valid(self):
         """Check if team assigned to player in stat appears in match."""
@@ -570,39 +538,31 @@ class Stat(models.Model):
         if not self.player_is_valid:
             raise ValidationError(f'Stat for {self.player} in this match already exists.', code="invalid_player")
 
-        #Goals validation
-        # if not self.goals_is_valid:
-        #     raise ValidationError(f'Sum of the goals of the individual players is not equal the declared match goals - {self.player}', code="invalid_goal")
-
         if not admin.site.is_registered(self.__class__):
         #Team exists in match validation
             if not self.team_is_valid:
                 raise ValidationError(f'Team {self.get_team} does not appear in this match.', code="invalid_team")
 
 
-# class JoinRequest(models.Model):
-#     """Request to join league as a player."""
+class PlayerStatSum(models.Model):
+    """Model which stores summary of stats to optimize performance"""
 
+    id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
+    goals = models.PositiveIntegerField(default=0)
+    match_count = models.PositiveIntegerField(default=0)
+    matchday_count = models.PositiveIntegerField(default=0)
+    points = models.PositiveIntegerField(default=0)
+    wins = models.PositiveIntegerField(default=0)
+    loses = models.PositiveIntegerField(default=0)
+    draws = models.PositiveIntegerField(default=0)
 
-#     class JoinRequestStatusChoices(models.TextChoices):
-#         PENDING = "PENDING", "Pending"
-#         APPROVED = "APPROVED", "Approved"
-#         REJECTED = "REJECTED", "Rejected"
-
-#     league = models.ForeignKey(
-#         to=League, related_name="join_requests", on_delete=models.CASCADE
-#     )
-#     player = models.ForeignKey(
-#         to=Player, related_name="join_requests", on_delete=models.CASCADE
-#     )
-#     status = models.CharField(
-#         max_length=15,
-#         choices=JoinRequestStatusChoices.choices,
-#         default=JoinRequestStatusChoices.PENDING,
-#     )
-
-
-
+    def __str__(self):
+        return f'Stat summary: {self.player} - {self.league}'
 
 
 @receiver(post_save, sender=Match)
@@ -618,6 +578,7 @@ def increment_match_counter(sender, instance, created, **kwargs):
         
         instance.match_in_matchday = matchday.match_counter
         instance.save()
+
 
 @receiver(post_delete, sender=Match)
 def decrement_match_counter(sender, instance, **kwargs):
@@ -637,6 +598,7 @@ def decrement_match_counter(sender, instance, **kwargs):
         # Decrement match_in_matchday in all found records.
         matches_to_decrement.update(match_in_matchday=models.F('match_in_matchday') - 1)
 
+
 @receiver(post_save, sender=User)  
 def create_and_set_player(sender, instance, created, **kwargs):
     """
@@ -646,3 +608,66 @@ def create_and_set_player(sender, instance, created, **kwargs):
         user = instance
         player = Player(first_name=user.first_name, last_name=user.last_name, user=user)
         player.save()
+
+
+@receiver(post_save, sender=Stat)
+def add_stat_to_player_stat_sum(sender, instance, created, **kwargs):
+    """
+    Add statistics to PlayerStatSum
+    """
+
+    if created:
+        player_stat_sum = get_player_stat_sum(instance.player, instance.league)
+
+        player_stat_sum.goals += instance.goals
+        player_stat_sum.match_count += 1
+
+        if instance.win:
+            player_stat_sum.wins += 1
+            player_stat_sum.points += 3 + instance.goals * 0.5
+        elif instance.win == "Draw":
+            player_stat_sum.draws += 1
+            player_stat_sum.points += 1 + instance.goals * 0.5
+        else:
+            player_stat_sum.loses += 1
+            player_stat_sum.points += instance.goals * 0.5
+
+        player_stat_sum.save()
+
+
+@receiver(pre_delete, sender=Stat)
+def decrement_stat_from_player_stat_sum(sender, instance, using, **kwargs):
+    player_stat_sum = get_player_stat_sum(instance.player, instance.league)
+
+    player_stat_sum.goals -= instance.goals
+    player_stat_sum.match_count -= 1
+
+    if instance.win:
+        player_stat_sum.wins -= 1
+        player_stat_sum.points -= 3 + instance.goals * 0.5
+    elif instance.win =="Draw":
+        player_stat_sum.draws -= 1
+        player_stat_sum.points -= 1 + instance.goals * 0.5
+    else:
+        player_stat_sum.loses -= 1
+        player_stat_sum.points -= instance.goals * 0.5
+
+    player_stat_sum.save()
+
+
+@receiver(post_save, sender=MatchDayTicket)
+def add_matchday_count_to_player_stat_sum(sender, instance, created, **kwargs):
+
+    if created:
+        player_stat_sum = get_player_stat_sum(instance.player, instance.matchday.league)
+
+        player_stat_sum.matchday_count += 1
+        player_stat_sum.save()
+
+
+@receiver(pre_delete, sender=MatchDayTicket)
+def decrement_matchday_count_from_player_stat_sum(sender, instance, using, **kwargs):
+    player_stat_sum = get_player_stat_sum(instance.player, instance.matchday.league)
+
+    player_stat_sum.matchday_count -= 1
+    player_stat_sum.save()

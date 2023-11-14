@@ -28,7 +28,7 @@
                     <th onclick="sortTable(9)" scope="col" data-type="number">Wins</th>
                     <th onclick="sortTable(10)" scope="col" data-type="number">Loses</th>
                     <th onclick="sortTable(11)" scope="col" data-type="number">Draws</th>
-                    <th onclick="sortTable(12)" scope="col" data-type="number">Win Ratio</th>
+                    <th onclick="sortTable(12)" scope="col" data-type="number">Winrate</th>
                     {% is_league_owner request.user league as is_owner %}
                     {% if is_owner %}
                         <th>Invites</th>
@@ -36,36 +36,36 @@
                 </tr>
             </thead>
             <tbody>
-                {% for player in players_list %}
+                {% for stat_sum in players_stats_sum_list %}
                 <tr>
                     <td>{{ forloop.counter }}</th>
-                    <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id player.id %}">{{ player.first_name }}</a></td>
-                    <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id player.id %}">{{ player.last_name }}</a></td>
-                    <td>{% get_player_goals_in_league player league %}</td>
-                    <td>{% get_player_goals_per_match_in_league player league %}</td>
-                    <td>{% get_player_matches_played_in_league player league %}</td>
-                    <td>{% get_player_matchdays_in_league player league %}</td>
-                    <td>{% get_total_points_in_league player league %}</td>
-                    <td>{% get_points_per_match_in_league player league %}</td>
-                    <td>{% get_player_wins_in_league player league %}</td>
-                    <td>{% get_player_loses_in_league player league %}</td>
-                    <td>{% get_player_draws_in_league player league %}</td>
-                    <td>{% get_player_win_ratio_in_league player league %}</td>
+                    <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id stat_sum.player.id %}">{{ stat_sum.player.first_name }}</a></td>
+                    <td><a class="text-white" style="text-decoration: none" href="{% url 'player_stats' league.id stat_sum.player.id %}">{{ stat_sum.player.last_name }}</a></td>
+                    <td>{{ stat_sum.goals }}</td>
+                    <td>{{ stat_sum.goals_per_match }}</td>
+                    <td>{{ stat_sum.match_count }}</td>
+                    <td>{{ stat_sum.matchday_count }}</td>
+                    <td>{{ stat_sum.points }}</td>
+                    <td>{{ stat_sum.points_per_match }}</td>
+                    <td>{{ stat_sum.wins }}</td>
+                    <td>{{ stat_sum.loses }}</td>
+                    <td>{{ stat_sum.draws }}</td>
+                    <td>{{ stat_sum.winrate }}%</td>
                     {% if is_owner %}
                         <td>
-                        {% if player.user %}
+                        {% if stat_sum.player.user %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
                             </svg>
                         {% else %}
-                            {% if player.get_invitation.is_active %}
-                                <form action={% url 'invitation_detail' league.id player.get_invitation %}>
-                                    <button type="submit" class="btn btn-success">Invite</button>
+                            {% if stat_sum.player.get_invitation.is_active %}
+                                <form action={% url 'invitation_detail' league.id stat_sum.player.get_invitation %}>
+                                    <button type="submit" class="btn btn-danger">Invite</button>
                                 </form>
                             {% else %}
                                 
-                                    <form action={% url 'invitation_create' league.id player.id %}>
+                                    <form action={% url 'invitation_create' league.id stat_sum.player.id %}>
                                         <button type="submit" class="btn btn-success">Invite</button>
                                     </form>
                                 
